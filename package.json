@@ -1,0 +1,30 @@
+{
+  "name": "nova-override",
+  "version": "1.0.0",
+  "description": "first release",
+  "main": "script.js",
+  "scripts": {
+    "start": "node"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alextownleymakes/space-game.git"
+  },
+  "keywords": [
+    "space",
+    "shooter",
+    "space",
+    "game"
+  ],
+  "author": "alex townley",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alextownleymakes/space-game/issues"
+  },
+  "homepage": "https://github.com/alextownleymakes/space-game#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "nodemon": "^1.19.3"
+  }
+}
