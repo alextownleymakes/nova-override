@@ -1,0 +1,20 @@
+.col-md-2 {
+    color: #eee;
+    text-align: center;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+h3 {
+    font-weight: 300 !important;
+    padding: 0px;
+    margin: 0px;
+}
+
+.on-screen-display {
+    width: 100%;
+    padding: 4px 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+}

@@ -5,11 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge"> 
     <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
     <title>Asteroids</title>
 </head>
 <body>
     <canvas></canvas>
+    <div class="container-fluid on-screen-display">
+        <div class="row">
+            <div class="col-md-2" id="game_name"><h3>name</h3></div>
+            <div class="col-md-10">
+                <div class="container-fluid ">
+                    <div class="row">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-2"></div>
+                        <div class="col-md-2"></div>
+                        <div class="col-md-2" id=""><H3>score</H3></div>
+                        <div class="col-md-2" id=""><H3>kills</H3></div>
+                        <div class="col-md-2" id=""><H3>wave</H3></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-2"></div>
+                        <div class="col-md-2"></div>
+                        <div class="col-md-2"><H3 id="score">score</H3></div>
+                        <div class="col-md-2"><H3 id="kills">kills</H3></div>
+                        <div class="col-md-2"><H3 id="wave">wave</H3></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
     /** @type {HTMLCanvasElement} */
     var canv = document.getElementById("gameCanvas");
@@ -21,3 +46,6 @@
      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 </html>
+
+
+
