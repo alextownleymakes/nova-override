@@ -10,9 +10,9 @@
 </head>
 <body>
     <canvas></canvas>
-    <div class="container-fluid on-screen-display">
+    <div class="container-fluid on-screen-display" id="display">
         <div class="row">
-            <div class="col-md-2" id="game_name"><h3 style="font-weight: 800 !important;">NOVA OVERRIDE</h3></div>
+            <div class="col-md-2" id="game_name"><h3 style="font-weight: 800 !important; font-size: 35px;">NOVA OVERRIDE</h3></div>
             <div class="col-md-10">
                 <div class="container-fluid ">
                     <div class="row">
@@ -26,9 +26,9 @@
                     <div class="row">
                         <div class="col-md-2"></div>
                         <div class="col-md-2 healthbar">
-                                    <div class="col-md-4" id="1"></div>
-                                    <div class="col-md-4" id="2"></div>
-                                    <div class="col-md-4" id="3"></div>    
+                                    <div class="col-md-4 health" id="1"></div>
+                                    <div class="col-md-4 health" id="2"></div>
+                                    <div class="col-md-4 health" id="3"></div>    
                         </div>
                         <div class="col-md-2"></div>
                         <div class="col-md-2"><H3 id="score">score</H3></div>
@@ -40,6 +40,30 @@
         </div>
     </div>
 
+   
+    <div class="condainer-fluid wave-display" id="wavedisplay">
+        <div class="row">
+            <div class="col-lg-12">
+                <H1 style="font-size: 200px;" id="whichwave"></H1>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="condainer-fluid keyboard-display" id="keyboard">
+        <div class="row">
+            <div class="col-md-4 controls">
+                    ^ or W: FORWARD THRUST<br>
+                    < or A: LEFT TURN<br>
+                    > or D: RIGHT TURN<br>
+                    v or S: BRAKE<br>
+                    &nbspspace: SHOOT<br>
+                    &nbsp&nbsp&nbsp&nbsp&nbspC: HIDE CONTROLS<br>
+                    &nbsp&nbsp&nbsp&nbsp&nbspO: HIDE OVERLAY</div>
+            <div class="col-sm-4"></div>
+            <div class="col-md-4"></div>          
+        </div>
+    </div>
     <div class="game-over container-fluid" id="gameover">
             <div class="row">
                 <div class="col-lg-12 spacer-top"></div>
@@ -53,16 +77,9 @@
         <div class="row">
             <div class="row-md-12 final-text"><h1>GAME OVER</h1>
                 <h3 >FINAL SCORE</h3>
-                <h3 style="font-weight: 800!important;padding-top: 10px" id="finalscore"></h3>
+                <h1 style="font-weight: 800!important;padding-top: 10px" id="finalscore"></h1>
                 <br><br>
                 <button type="button" class="reset-button" onClick="window.location.reload();" id="resetButton">PLAY AGAIN</button></div>
-        </div>
-    </div>
-    <div class="condainer-fluid wave-display" id="wavedisplay">
-        <div class="row">
-            <div class="col-lg-12">
-                <H1 style="font-size: 200px;" id="whichwave"></H1>
-            </div>
         </div>
     </div>
     <script>

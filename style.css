@@ -1,3 +1,7 @@
+/* body {
+    
+} */
+
 .col-md-2 {
     color: #eee;
     text-align: center;
@@ -24,7 +28,7 @@ h1 {
     left: 0;
 }
 
-.col-md-4 {
+.health {
     background-color: #f00;
     height: 20px;
 }
@@ -49,6 +53,7 @@ h1 {
     text-align: center;
     margin-top: 200px;
 }
+
 .game-over{
     position: absolute;
     top: 0px;
@@ -56,7 +61,29 @@ h1 {
     height: 110vh;
     width: 100%;
     visibility: hidden;
-    background-color:rgba(50,50,50,.8);
     max-width: 100% !important;
     text-align: center;
+}
+
+.keyboard-display {
+    visibility: visible; 
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 110vh;
+    width: 100%;
+    max-width: 100% !important;
+    text-align: left;
+    padding-top: 150px;
+}
+
+.controls {
+    margin-left: 3%;
+    font-size: 10px;
+    color:#eee !important;
+    font-family: monospace !important;
+}
+
+.visibility-toggle {
+    visibility: hidden;
 }

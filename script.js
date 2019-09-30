@@ -28,6 +28,7 @@ var explosions = {
 
 var playerHealth = 3;
 var maxEnemies = 5;
+var spawnedThisWave = 0;
 var enemiesThisWave = 5;
 var spawnCount = 0;
 var waveKill = 0;
@@ -102,6 +103,9 @@ function update() {
     gameOver();
 }
 
+// function gameStart() {
+//     display keyboard controls
+// }
 function randomTimer() {
     return (Math.random()*3000)+500;
 }
@@ -276,6 +280,18 @@ function explosion(dis) {
         }
     }
 }
+// function playerExplosionRedraw() {
+//     if (ship.explosions.length > 0) {
+//         for (var i = 0; i < explosionsTimer; i++)
+//             for (var i = 0; i < ship.explosions.length; i++) {
+//                 setTimeout(function() {
+//                 ship.explosions[i].x = ship.x;
+//                 ship.explosions[i].y = ship.y;
+//                 }, 100);
+//         }
+//         ship.explosions = [];
+//     }
+// }
 function playerExplosion() {
     console.log("big boom");
     for(i=0; i < explosionCount; i++){
@@ -294,25 +310,29 @@ function playerExplosion() {
     ship.explosions = [];
 // enemy.ships.splice(j,1);  
 }
-// function playerExplosionRedraw() {
-//     if (ship.explosions.length > 0) {
-//         for (var i = 0; i < explosionsTimer; i++)
-//             for (var i = 0; i < ship.explosions.length; i++) {
-//                 setTimeout(function() {
-//                 ship.explosions[i].x = ship.x;
-//                 ship.explosions[i].y = ship.y;
-//                 }, 100);
-//         }
-//         ship.explosions = [];
-//     }
-// }
+function shipScreenWrap() {
+    if (ship.x > window.innerWidth ) {
+        ship.x = 1;
+    }
 
-////////////////////////////////
-////////// ENEMY SHIP //////////
-////////////////////////////////
+    if (ship.y > window.innerHeight ) {
+        ship.y = 1;
+    }
+    if (ship.x < 0 ) {
+        ship.x = window.innerWidth;
+    }
+
+    if (ship.y < 0 ) {
+        ship.y = window.innerHeight;
+    }
+}
+
+/////////////////////////////////
+////////// ENEMY SHIPS //////////
+/////////////////////////////////
 function enemyCreate() {
     if (gameOverCondition == false) {
-        while (enemy.ships.length < maxEnemies) {
+        while (enemy.ships.length < maxEnemies && spawnedThisWave < enemiesThisWave) {
             enemy.ships.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
@@ -330,6 +350,7 @@ function enemyCreate() {
                 explosions: [],
             });
             spawnCount++;
+            spawnedThisWave++;
         }
     }
 }
@@ -377,27 +398,30 @@ function enemyAcceleration () {
     } 
 }
 function clearEnemies() {
-    for (var i = 0; i < enemy.ships.length; i++) {
-        if (enemy.ships[i].x > canvas.width || enemy.ships[i].x < 0  || enemy.ships[i].y > canvas.height || enemy.ships[i].y < 0) {
-            enemy.ships.splice(i,1);
+    if (gameOverCondition == false) {
+        for (var i = 0; i < enemy.ships.length; i++) {
+            if (enemy.ships[i].x > window.innerWidth ) {
+                enemy.ships[i].x = 1;
+            }
+        
+            if (enemy.ships[i].y > window.innerHeight ) {
+                enemy.ships[i].y = 1;
+            }
+            if (enemy.ships[i].x < 0 ) {
+                enemy.ships[i].x = window.innerWidth;
+            }
+        
+            if (enemy.ships[i].y < 0 ) {
+                enemy.ships[i].y = window.innerHeight;
+            }
         }
-    }
-}
-function shipScreenWrap() {
-    if (ship.x > window.innerWidth ) {
-        ship.x = 1;
-    }
-
-    if (ship.y > window.innerHeight ) {
-        ship.y = 1;
-    }
-    if (ship.x < 0 ) {
-        ship.x = window.innerWidth;
-    }
-
-    if (ship.y < 0 ) {
-        ship.y = window.innerHeight;
-    }
+    } else if (gameOver == true) {
+        for (var i = 0; i < enemy.ships.length; i++) {
+            if (enemy.ships[i].x > canvas.width || enemy.ships[i].x < 0  || enemy.ships[i].y > canvas.height || enemy.ships[i].y < 0) {
+                enemy.ships.splice(i,1);
+            }
+        }
+    }   
 }
 function calculateAccelRatio (x,y,d) {
     if (x < 0) { x = -x };
@@ -464,7 +488,7 @@ function killEnemy() {
                 whichExplodey = enemy.ships[j];
                 explosion(whichExplodey);
                 enemy.ships.splice(j,1);
-                theScore+= (10*(waveCount/2))+5;
+                theScore+= (100*(waveCount/2))+50;
             }
         }
     }
@@ -487,7 +511,6 @@ function enemyBulletsShoot() {
         }, randomTimer());
     }
 }
-
 function enemyBulletsDraw () {
 
     for (i=0; i < enemy.ships.length; i++) {
@@ -527,7 +550,6 @@ function damagePlayer() {
     }
    
 }
-
 function clearEnemyBullets() {
     for (var j=0; j < enemy.ships.length; j++) {
         for (var i = 0; i < enemy.ships[j].bullets.length; i++) {
@@ -548,6 +570,7 @@ function waveIncrease() {
         enemiesThisWave+=5;
         waveKill = 0;
         maxEnemies++;
+        spawnedThisWave=0;
         waveOver = true;
         // waveDisplay();
     }
@@ -612,7 +635,7 @@ function keyboardMovement()
 			break;
 
 			//key S or DOWN
-            case 88:
+            case 83:
             case 40:
 			ship.decel = true;
 
@@ -634,6 +657,14 @@ function keyboardMovement()
             if (gameOverCondition == true) {
                 window.location.reload();
             }
+
+            case 67:
+            document.getElementById('keyboard').classList.toggle("visibility-toggle");
+            break;
+            case 79:
+            document.getElementById('display').classList.toggle("visibility-toggle");
+            break;
+
 		}
 
 		e.preventDefault();
@@ -669,7 +700,8 @@ function keyboardMovement()
 			break;
 
 			//key S or DOWN
-			case 88:
+			case 83:
+            case 40:
 			ship.decel = false;
 
 			break;
