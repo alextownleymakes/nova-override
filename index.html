@@ -12,12 +12,12 @@
     <canvas></canvas>
     <div class="container-fluid on-screen-display">
         <div class="row">
-            <div class="col-md-2" id="game_name"><h3>name</h3></div>
+            <div class="col-md-2" id="game_name"><h3 style="font-weight: 800 !important;">NOVA OVERRIDE</h3></div>
             <div class="col-md-10">
                 <div class="container-fluid ">
                     <div class="row">
                         <div class="col-md-2"></div>
-                        <div class="col-md-2"></div>
+                        <div class="col-md-2"><H3>HEALTH</H3></div>
                         <div class="col-md-2"></div>
                         <div class="col-md-2" id=""><H3>score</H3></div>
                         <div class="col-md-2" id=""><H3>kills</H3></div>
@@ -25,13 +25,43 @@
                     </div>
                     <div class="row">
                         <div class="col-md-2"></div>
-                        <div class="col-md-2"></div>
+                        <div class="col-md-2 healthbar">
+                                    <div class="col-md-4" id="1"></div>
+                                    <div class="col-md-4" id="2"></div>
+                                    <div class="col-md-4" id="3"></div>    
+                        </div>
                         <div class="col-md-2"></div>
                         <div class="col-md-2"><H3 id="score">score</H3></div>
                         <div class="col-md-2"><H3 id="kills">kills</H3></div>
                         <div class="col-md-2"><H3 id="wave">wave</H3></div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-over container-fluid" id="gameover">
+            <div class="row">
+                <div class="col-lg-12 spacer-top"></div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 spacer-top"></div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 spacer-top"></div>
+            </div>
+        <div class="row">
+            <div class="row-md-12 final-text"><h1>GAME OVER</h1>
+                <h3 >FINAL SCORE</h3>
+                <h3 style="font-weight: 800!important;padding-top: 10px" id="finalscore"></h3>
+                <br><br>
+                <button type="button" class="reset-button" onClick="window.location.reload();" id="resetButton">PLAY AGAIN</button></div>
+        </div>
+    </div>
+    <div class="condainer-fluid wave-display" id="wavedisplay">
+        <div class="row">
+            <div class="col-lg-12">
+                <H1 style="font-size: 200px;" id="whichwave"></H1>
             </div>
         </div>
     </div>

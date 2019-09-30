@@ -3,18 +3,60 @@
     text-align: center;
     text-transform: uppercase;
     vertical-align: middle;
+    padding-bottom: 5px;
 }
 
 h3 {
     font-weight: 300 !important;
     padding: 0px;
-    margin: 0px;
+    margin: 0px!important;
+    color: #eee !important;
 }
 
+h1 {
+    color: #eee !important;
+}
 .on-screen-display {
     width: 100%;
-    padding: 4px 0;
+    padding: 30px 0;
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.col-md-4 {
+    background-color: #f00;
+    height: 20px;
+}
+.spacer-top {
+    height: 50px;
+}
+.healthbar {
+    border-style: solid;
+    border-color: #f00;
+    border-width: 1px;
+    padding: 0px !important;
+}
+
+.wave-display {
+    visibility: visible; 
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 110vh;
+    width: 100%;
+    max-width: 100% !important;
+    text-align: center;
+    margin-top: 200px;
+}
+.game-over{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 110vh;
+    width: 100%;
+    visibility: hidden;
+    background-color:rgba(50,50,50,.8);
+    max-width: 100% !important;
+    text-align: center;
 }
