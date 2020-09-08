@@ -12,6 +12,15 @@
 
 h3 {
     font-weight: 300 !important;
+    font-size: .6rem;
+    padding: 0px;
+    margin: 0px!important;
+    color: #eee !important;
+}
+
+h4 {
+    font-weight: 300 !important;
+    font-size: 1.6rem !important;
     padding: 0px;
     margin: 0px!important;
     color: #eee !important;
@@ -54,7 +63,18 @@ h1 {
     margin-top: 200px;
 }
 
-.game-over{
+.game-over {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 110vh;
+    width: 100%;
+    visibility: hidden;
+    max-width: 100% !important;
+    text-align: center;
+}
+
+.level-up {
     position: absolute;
     top: 0px;
     left: 0px;
