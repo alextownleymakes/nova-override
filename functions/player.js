@@ -1,0 +1,221 @@
+// @ts-check
+
+function shipDraw(c, ship, shipSize, gameOverCondition, showBounding) {
+    if (gameOverCondition == false) {
+        c.strokeStyle = "white",
+            c.lineWidth = shipSize / 10;
+        c.beginPath();
+        c.moveTo( //nose of ship
+            ship.x + 4 / 3 * ship.r * Math.cos(ship.a),
+            ship.y - 4 / 3 * ship.r * Math.sin(ship.a)
+        );
+        c.lineTo( //rear left
+            ship.x - ship.r * (2 / 3 * Math.cos(ship.a) + Math.sin(ship.a)),
+            ship.y + ship.r * (2 / 3 * Math.sin(ship.a) - Math.cos(ship.a))
+        );
+        c.lineTo( //rear right
+            ship.x - ship.r * (2 / 3 * Math.cos(ship.a) - Math.sin(ship.a)),
+            ship.y + ship.r * (2 / 3 * Math.sin(ship.a) + Math.cos(ship.a))
+        );
+        c.closePath();
+        c.stroke();
+        c.fillStyle = "skyblue";
+        c.fillRect(ship.x - 1, ship.y - 1, 2, 2);
+
+        if (showBounding) {
+            c.strokeStyle = "lime";
+            c.beginPath();
+            c.arc(ship.x, ship.y, ship.r, 0, Math.PI * 2, false);
+            c.stroke();
+        }
+    }
+    else if (gameOverCondition == true) {
+
+    }
+}
+function thrusterDraw(c, ship, shipSize) {
+    // console.log("drawing thruster");
+    c.strokeStyle = "orange",
+        c.lineWidth = shipSize / 10;
+    c.beginPath();
+    c.moveTo(
+        (ship.x - 2) - ship.r * (2 / 3 * Math.cos(ship.a) + 1 * Math.sin(ship.a)),
+        ship.y + ship.r * (2 / 3 * Math.sin(ship.a) - 1 * Math.cos(ship.a))
+    );
+    c.lineTo(
+        ship.x - ship.r * 5 / 3 * Math.cos(ship.a),
+        (ship.y - 7) + ship.r * 6 / 3 * Math.sin(ship.a)
+    );
+    c.lineTo(
+        (ship.x - 2) - ship.r * (2 / 3 * Math.cos(ship.a) - .01 * Math.sin(ship.a)),
+        ship.y + ship.r * (3 / 6 * Math.sin(ship.a) + .01 * Math.cos(ship.a))
+    )
+    c.lineTo(
+        ship.x - ship.r * 5 / 3 * Math.cos(ship.a),
+        (ship.y + 7) + ship.r * 6 / 3 * Math.sin(ship.a)
+    );
+    c.lineTo(
+        (ship.x - 2) - ship.r * (2 / 3 * Math.cos(ship.a) - 1 * Math.sin(ship.a)),
+        ship.y + ship.r * (3 / 6 * Math.sin(ship.a) + 1 * Math.cos(ship.a))
+    )
+    c.closePath();
+    c.stroke();
+}
+
+function shipRotation(controller, ship, handling, angle) {
+    // console.log('props: ', leftTurn, rightTurn, ship, handling, angle);
+    if (controller.leftTurn) {
+        if (ship.angle == 360) {
+            ship.angle = 0
+            console.log('Angle reset to 0 from 360');
+        }
+        ship.angle += handling;
+        ship.a = ship.angle / 180 * Math.PI; // convert to radians
+        console.log('Current ship angle:', ship.angle);
+    }
+
+    if (controller.rightTurn) {
+        if (ship.angle == 0) {
+            ship.angle = 360
+            console.log('Angle reset to 360 from 0');
+        }
+        ship.angle -= handling;
+        ship.a = ship.angle / 180 * Math.PI;
+        console.log('Current ship angle:', ship.angle);
+    }
+
+}
+
+function shipAcceleration(c, ship, shipSize, acceleration) {
+    // console.log (ship.a,Math.sin(ship.a), Math.cos(ship.a))
+    if (ship.accel) {
+        thrusterDraw(c, ship, shipSize);
+        if (ship.thrust.x < ship.speedCap && ship.thrust.x > -ship.speedCap) {
+            ship.thrust.x += acceleration * Math.cos(ship.a);
+        }
+        if (ship.thrust.y < ship.speedCap && ship.thrust.y > -ship.speedCap) {
+            ship.thrust.y += -acceleration * Math.sin(ship.a);
+        }
+        // if ( )
+        // console.log(ship.thrust.y);
+    }
+    ship.x += ship.thrust.x;
+    ship.y += ship.thrust.y;
+
+}
+
+function shipDeceleration(ship, d) {
+    // console.log(dR);
+    if (ship.decel) {
+        ship.thrust.x -= d * ship.thrust.x;
+        ship.thrust.y -= d * ship.thrust.y;
+    }
+
+    if (ship.thrust.x < 1 && ship.thrust.x > -1 && ship.thrust.y < 1 &&
+        ship.thrust.y > -1) {
+        ship.thrust.x = 0;
+        ship.thrust.y = 0;
+    }
+}
+
+function thrustLimiter(x, y, s) {
+    if (x >= s) { ship.thrust.x = s - .5 };
+    if (x <= -s) { ship.thrust.x = -s + .5 };
+    if (y >= s) { ship.thrust.y = s - .5 };
+    if (y <= -s) { ship.thrust.y = -s + .5 };
+}
+
+function reverseAngle(ship, controller) {
+    // reverse the player's angle opposite of their direction of momentum (not opposite their current angle)
+    if (controller.flip) {
+        // angle of momentum in degrees
+        let currentAOM = Math.atan2(-ship.thrust.y, ship.thrust.x) * 180 / Math.PI;
+        // target angle of momentum is 180 degrees from current
+        let targetA = Math.floor((currentAOM + 180) % 360);
+        console.log('Reversing angle from ' + currentAOM + ' to target AOM: ' + targetA);
+        //if the ship's angle is not equal to the target angle, OR if the difference between the ship's angle and the target angle is less than the handling, adjust the ship's angle towards the target angle
+        if (ship.angle !== targetA || Math.abs(ship.angle - targetA) < handling) {
+            if (ship.angle < 0) {
+                ship.angle = 360 + ship.angle; // ensure angle is between 0 and 360
+            }
+
+            if (ship.angle > 360) {
+                ship.angle -= 360; // ensure angle is between 0 and 360
+            }
+            // change ship angle to 10% of the difference between current angle and target angle, to create a smooth transition
+            let angleDifference = targetA - ship.angle;
+            if (angleDifference > 180) {
+                angleDifference -= 360; // take the shorter path around the circle
+            } else if (angleDifference < -180) {
+                angleDifference += 360; // take the shorter path around the circle
+            }
+            ship.angle += angleDifference * 0.2;
+        } else {
+            ship.angle = targetA; // snap to target angle if close enough
+        }
+        
+        ship.a = ship.angle / 180 * Math.PI; // update ship.a to match new angle
+        console.log('Reversed angle to:', ship.angle);
+    }
+}
+
+
+function playerExplosion(ship, explosionCount, c) {
+    console.log("big boom");
+    for (let i = 0; i < explosionCount; i++) {
+        ship.explosions.push({
+            x: ship.x,
+            y: ship.y,
+        });
+        c.beginPath()
+        c.strokeStyle = "red";
+        c.fillStyle = "orange";
+        c.arc((ship.x - 20) + Math.random() * 40, (ship.y - 20) + Math.random() * 40, ship.r, 0, Math.PI * 2, false);
+        c.fill();
+        c.stroke();
+        c.closePath();
+    }
+    ship.explosions = [];
+    // enemy.ships.splice(j,1);  
+}
+
+function shipScreenWrap() {
+    if (ship.x > window.innerWidth) {
+        ship.x = 1;
+    }
+
+    if (ship.y > window.innerHeight) {
+        ship.y = 1;
+    }
+    if (ship.x < 0) {
+        ship.x = window.innerWidth;
+    }
+
+    if (ship.y < 0) {
+        ship.y = window.innerHeight;
+    }
+}
+
+const draw = (c, ship, shipSize, gameOverCondition, showBounding) => {
+    shipDraw(c, ship, shipSize, gameOverCondition, showBounding);
+    thrusterDraw(c, ship, shipSize);
+}
+
+const player = {
+    draw,
+    rot: shipRotation,
+    accel: shipAcceleration,
+    lim: thrustLimiter,
+    decel: shipDeceleration,
+    wrap: shipScreenWrap,
+    flip: reverseAngle,
+    cycle: (c, ship, shipSize, gameOverCondition, showBounding, x, y, speedCap, acceleration, d, angle, controller) => {
+        player.draw(c, ship, shipSize, gameOverCondition, showBounding);
+        player.rot(controller, ship, handling, angle);
+        player.flip(ship, controller);
+        player.lim(x, y, speedCap);
+        player.accel(c, ship, shipSize, acceleration);
+        player.decel(ship, d);
+        player.wrap();
+    }
+};
