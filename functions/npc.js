@@ -1,8 +1,10 @@
 // @ts-check
 
 function enemyCreate(gameOverCondition, enemy, canvas, shipSize, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount) {
+    
     if (gameOverCondition == false) {
         while (enemy.ships.length < maxEnemies && spawnedThisWave < enemiesThisWave) {
+            console.log('Spawning enemy ship');
             enemy.ships.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
@@ -73,8 +75,8 @@ const npc = {
     create: enemyCreate,
     draw: enemyDraw,
     accel: enemyAcceleration,
-    cycle: (enemy, c, shipSize, showBounding, acceleration) => {
-        npc.create();
+    cycle: (enemy, c, shipSize, showBounding, acceleration, gameOverCondition, canvas, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount) => {
+        npc.create(gameOverCondition, enemy, canvas, shipSize, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount);
         npc.draw(enemy, c, shipSize, showBounding);
         npc.accel(enemy, acceleration);
     },

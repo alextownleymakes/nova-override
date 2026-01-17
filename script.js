@@ -69,7 +69,7 @@ function update() {
     hud.draw(waveCount, theScore, killCount);
     player.cycle(c, ship, shipSize, gameOverCondition, showBounding, ship.thrust.x, ship.thrust.y, ship.speedCap, acceleration, deceleration, angle, controller);
     combat.player.cycle(ship, bulletSpeed, maxBullets, gameOver, gameOverCondition, enemy, canvas, c);
-    npc.cycle(enemy, c, shipSize, showBounding, acceleration);
+    npc.cycle(enemy, c, shipSize, showBounding, acceleration, gameOverCondition, canvas, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount);
     combat.npc.cycle(ship, enemy, canvas, gameOverCondition, bulletSpeed, randomTimer, playerExplosion, playerHealth, distanceBetween, c, explosion, killCount, waveKill, waveCount, theScore);
     gameOver(playerHealth, gameOverCondition, theScore, maxEnemies);
 }

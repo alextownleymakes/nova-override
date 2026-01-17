@@ -126,42 +126,34 @@ function thrustLimiter(x, y, s) {
 }
 
 function reverseAngle(ship, controller) {
-    // reverse the player's angle opposite of their direction of momentum (not opposite their current angle)
     if (controller.flip) {
-        // angle of momentum in degrees
         let currentAOM = Math.atan2(-ship.thrust.y, ship.thrust.x) * 180 / Math.PI;
-        // target angle of momentum is 180 degrees from current
         let targetA = Math.floor((currentAOM + 180) % 360);
-        console.log('Reversing angle from ' + currentAOM + ' to target AOM: ' + targetA);
-        //if the ship's angle is not equal to the target angle, OR if the difference between the ship's angle and the target angle is less than the handling, adjust the ship's angle towards the target angle
         if (ship.angle !== targetA || Math.abs(ship.angle - targetA) < handling) {
             if (ship.angle < 0) {
-                ship.angle = 360 + ship.angle; // ensure angle is between 0 and 360
+                ship.angle = 360 + ship.angle; 
             }
 
             if (ship.angle > 360) {
-                ship.angle -= 360; // ensure angle is between 0 and 360
+                ship.angle -= 360; 
             }
-            // change ship angle to 10% of the difference between current angle and target angle, to create a smooth transition
             let angleDifference = targetA - ship.angle;
             if (angleDifference > 180) {
-                angleDifference -= 360; // take the shorter path around the circle
+                angleDifference -= 360; 
             } else if (angleDifference < -180) {
-                angleDifference += 360; // take the shorter path around the circle
+                angleDifference += 360; 
             }
             ship.angle += angleDifference * 0.2;
         } else {
-            ship.angle = targetA; // snap to target angle if close enough
+            ship.angle = targetA; 
         }
         
-        ship.a = ship.angle / 180 * Math.PI; // update ship.a to match new angle
-        console.log('Reversed angle to:', ship.angle);
+        ship.a = ship.angle / 180 * Math.PI; 
     }
 }
 
 
 function playerExplosion(ship, explosionCount, c) {
-    console.log("big boom");
     for (let i = 0; i < explosionCount; i++) {
         ship.explosions.push({
             x: ship.x,
