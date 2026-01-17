@@ -101,13 +101,14 @@ function enemyBulletsMove(enemy, canvas) {
     }
 }
 
-function damagePlayer(ship, enemy, distanceBetween, playerExplosion, playerHealth, gameOverCondition) {
+function damagePlayer(ship, enemy, distanceBetween, playerExplosion, playerHealth, gameOverCondition, c, explosionCount) {
     for (let k = 0; k < enemy.ships.length; k++) {
         for (let i = 0; i < enemy.ships[k].bullets.length; i++) {
             if (distanceBetween(enemy.ships[k].bullets[i].x, enemy.ships[k].bullets[i].y, ship.x, ship.y) < enemy.ships[k].bullets[i].r + ship.r) {
+                console.log('enemy bullet hit player');
                 // enemy.ships.splice(j,1);
                 // explosion(enemy.ships[j]);
-                playerExplosion();
+                playerExplosion(ship, explosionCount, c);
                 console.log('that\'s a hit!');
                 if (gameOverCondition == false) {
                     const ph = document.getElementById(playerHealth);
@@ -163,11 +164,12 @@ const combat = {
         moveshots: bulletsMove,
         clearshots: clearBullets,
         damage: damagePlayer,
-        cycle: (ship, bulletSpeed, maxBullets, gameOver, gameOverCondition, enemy, canvas, c) => {
+        cycle: (ship, bulletSpeed, maxBullets, gameOver, gameOverCondition, enemy, canvas, c, distanceBetween, playerExplosion, explosionCount) => {
             combat.player.shoot(ship, bulletSpeed, maxBullets);
             combat.player.drawshots(ship, c);
             combat.player.moveshots(ship, canvas);
             combat.player.clearshots(ship, canvas);
+            combat.player.damage(ship, enemy, distanceBetween, playerExplosion, playerHealth, gameOverCondition, c, explosionCount);
             combat.npc.clear(enemy, gameOver, gameOverCondition, canvas);
         }
     },
@@ -179,7 +181,7 @@ const combat = {
         kill: killEnemy,
         clear: clearEnemies,
         cycle: (ship, enemy, canvas, gameOverCondition, bulletSpeed, randomTimer, playerExplosion, playerHealth, distanceBetween, c, explosion, killCount, waveKill, waveCount, theScore) => {
-            combat.npc.shoot(enemy, gameOverCondition,  bulletSpeed, randomTimer);
+            combat.npc.shoot(gameOverCondition, enemy, maxEnemyBullets, bulletSpeed, randomTimer);
             combat.npc.kill(ship, enemy, distanceBetween, explosion, killCount, waveKill, waveCount, theScore);
             combat.npc.drawshot(enemy, c);
             combat.npc.moveshot(enemy, canvas);

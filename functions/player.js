@@ -87,7 +87,7 @@ function shipRotation(controller, ship, handling, angle) {
 }
 
 function shipAcceleration(c, ship, shipSize, acceleration) {
-    // console.log (ship.a,Math.sin(ship.a), Math.cos(ship.a))
+    // console.log(ship)
     if (ship.accel) {
         thrusterDraw(c, ship, shipSize);
         if (ship.thrust.x < ship.speedCap && ship.thrust.x > -ship.speedCap) {
@@ -131,24 +131,24 @@ function reverseAngle(ship, controller) {
         let targetA = Math.floor((currentAOM + 180) % 360);
         if (ship.angle !== targetA || Math.abs(ship.angle - targetA) < handling) {
             if (ship.angle < 0) {
-                ship.angle = 360 + ship.angle; 
+                ship.angle = 360 + ship.angle;
             }
 
             if (ship.angle > 360) {
-                ship.angle -= 360; 
+                ship.angle -= 360;
             }
             let angleDifference = targetA - ship.angle;
             if (angleDifference > 180) {
-                angleDifference -= 360; 
+                angleDifference -= 360;
             } else if (angleDifference < -180) {
-                angleDifference += 360; 
+                angleDifference += 360;
             }
             ship.angle += angleDifference * 0.2;
         } else {
-            ship.angle = targetA; 
+            ship.angle = targetA;
         }
-        
-        ship.a = ship.angle / 180 * Math.PI; 
+
+        ship.a = ship.angle / 180 * Math.PI;
     }
 }
 
