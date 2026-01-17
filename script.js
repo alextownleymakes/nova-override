@@ -65,12 +65,24 @@ var stars = [];
 
 function update() {
     math.car(ship.thrust.x,ship.thrust.y,deceleration);
-    background.draw(canvas, stars, starCount, c);
-    hud.draw(waveCount, theScore, killCount);
+    // Background in screen-space
+    background.draw(canvas, ship, stars, starCount, c);
+
+    // World in world-space, camera locked to player
+    const camX = ship.x;
+    const camY = ship.y;
+    c.save();
+    c.translate(canvas.width / 2 - camX, canvas.height / 2 - camY);
+
     player.cycle(c, ship, shipSize, gameOverCondition, showBounding, ship.thrust.x, ship.thrust.y, ship.speedCap, acceleration, deceleration, angle, controller);
     combat.player.cycle(ship, bulletSpeed, maxBullets, gameOver, gameOverCondition, enemy, canvas, c, distanceBetween, playerExplosion, explosionCount);
-    npc.cycle(enemy, c, shipSize, showBounding, acceleration, gameOverCondition, canvas, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount);
+    npc.cycle(ship, enemy, c, shipSize, showBounding, acceleration, gameOverCondition, canvas, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount);
     combat.npc.cycle(ship, enemy, canvas, gameOverCondition, bulletSpeed, randomTimer, playerExplosion, playerHealth, distanceBetween, c, explosion, killCount, waveKill, waveCount, theScore);
+
+    c.restore();
+
+    // HUD is DOM-based, leave in screen-space
+    hud.draw(waveCount, theScore, killCount);
     gameOver(playerHealth, gameOverCondition, theScore, maxEnemies);
 }
 

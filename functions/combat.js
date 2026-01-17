@@ -26,15 +26,17 @@ function bulletsMove(ship, canvas) {
     for (var i = 0; i < ship.bullets.length; i++) {
         ship.bullets[i].x += ship.bullets[i].xv;
         ship.bullets[i].y += ship.bullets[i].yv;
-        if (ship.bullets[i].x > canvas.width || ship.bullets[i].x < 0 || ship.bullets[i].y > canvas.height || ship.bullets[i].y < 0) {
-            ship.bullets.splice[i];
-        }
+        // In an unbounded world, don't cull by screen bounds here.
     }
 }
 
 function clearBullets(ship, canvas) {
-    for (var i = 0; i < ship.bullets.length; i++) {
-        if (ship.bullets[i].x > canvas.width || ship.bullets[i].x < 0 || ship.bullets[i].y > canvas.height || ship.bullets[i].y < 0) {
+    // In an unbounded world, bullets shouldn't be culled by screen bounds.
+    // Cull them when they get sufficiently far from the player.
+    const maxDist = Math.max(canvas.width, canvas.height) * 2.5;
+    for (let i = ship.bullets.length - 1; i >= 0; i--) {
+        const b = ship.bullets[i];
+        if (Math.hypot(b.x - ship.x, b.y - ship.y) > maxDist) {
             ship.bullets.splice(i, 1);
         }
     }
@@ -94,9 +96,7 @@ function enemyBulletsMove(enemy, canvas) {
         for (let j = 0; j < enemy.ships[i].bullets.length; j++) {
             enemy.ships[i].bullets[j].x += enemy.ships[i].bullets[j].xv;
             enemy.ships[i].bullets[j].y += enemy.ships[i].bullets[j].yv;
-            if (enemy.ships[i].bullets[j].x > canvas.width || enemy.ships[i].bullets[j].x < 0 || enemy.ships[i].bullets[j].y > canvas.height || enemy.ships[i].bullets[j].y < 0) {
-                enemy.ships[i].bullets.splice(j, 1);
-            }
+            // In an unbounded world, don't cull by screen bounds here.
         }
     }
 }
@@ -120,10 +120,12 @@ function damagePlayer(ship, enemy, distanceBetween, playerExplosion, playerHealt
     }
 }
 
-function clearEnemyBullets(enemy, canvas) {
+function clearEnemyBullets(enemy, canvas, ship) {
+    const maxDist = Math.max(canvas.width, canvas.height) * 2.5;
     for (let j = 0; j < enemy.ships.length; j++) {
-        for (let i = 0; i < enemy.ships[j].bullets.length; i++) {
-            if (enemy.ships[j].bullets[i].x > canvas.width || enemy.ships[j].bullets[i].x < 0 || enemy.ships[j].bullets[i].y > canvas.height || enemy.ships[j].bullets[i].y < 0) {
+        for (let i = enemy.ships[j].bullets.length - 1; i >= 0; i--) {
+            const b = enemy.ships[j].bullets[i];
+            if (Math.hypot(b.x - ship.x, b.y - ship.y) > maxDist) {
                 enemy.ships[j].bullets.splice(i, 1);
             }
         }
@@ -131,30 +133,8 @@ function clearEnemyBullets(enemy, canvas) {
 }
 
 function clearEnemies(enemy, gameOver, gameOverCondition, canvas) {
-    if (gameOverCondition == false) {
-        for (let i = 0; i < enemy.ships.length; i++) {
-            if (enemy.ships[i].x > window.innerWidth ) {
-                enemy.ships[i].x = 1;
-            }
-        
-            if (enemy.ships[i].y > window.innerHeight ) {
-                enemy.ships[i].y = 1;
-            }
-            if (enemy.ships[i].x < 0 ) {
-                enemy.ships[i].x = window.innerWidth;
-            }
-        
-            if (enemy.ships[i].y < 0 ) {
-                enemy.ships[i].y = window.innerHeight;
-            }
-        }
-    } else if (gameOver == true) {
-        for (var i = 0; i < enemy.ships.length; i++) {
-            if (enemy.ships[i].x > canvas.width || enemy.ships[i].x < 0  || enemy.ships[i].y > canvas.height || enemy.ships[i].y < 0) {
-                enemy.ships.splice(i,1);
-            }
-        }
-    }   
+    // Unbounded world: no screen-wrap and no culling by screen bounds.
+    // (If you later want despawn, do it by distance-to-player.)
 }
 
 const combat = {
@@ -185,7 +165,7 @@ const combat = {
             combat.npc.kill(ship, enemy, distanceBetween, explosion, killCount, waveKill, waveCount, theScore);
             combat.npc.drawshot(enemy, c);
             combat.npc.moveshot(enemy, canvas);
-            combat.npc.clearshot(enemy, canvas);
+            combat.npc.clearshot(enemy, canvas, ship);
             combat.player.damage(ship, enemy, distanceBetween, playerExplosion, playerHealth, gameOverCondition);
         }
     },

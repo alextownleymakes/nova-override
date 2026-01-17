@@ -1,13 +1,17 @@
 // @ts-check
 
-function enemyCreate(gameOverCondition, enemy, canvas, shipSize, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount) {
+function enemyCreate(ship, gameOverCondition, enemy, canvas, shipSize, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount) {
 console.log(globalSpeedCap);
     if (gameOverCondition == false) {
         while (enemy.ships.length < maxEnemies && spawnedThisWave < enemiesThisWave) {
             console.log('Spawning enemy ship');
+            // Spawn in WORLD space around the player (not screen coords)
+            // so new enemies appear near-ish to you even after you fly far.
+            const spawnRadiusX = canvas.width * 1.25;
+            const spawnRadiusY = canvas.height * 1.25;
             enemy.ships.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
+                x: ship.x + (Math.random() - 0.5) * spawnRadiusX,
+                y: ship.y + (Math.random() - 0.5) * spawnRadiusY,
                 r: shipSize / 3,
                 a: angle / (Math.random() * 180) * Math.PI, // convert to radians
                 accel: true,
@@ -109,8 +113,8 @@ const npc = {
     draw: enemyDraw,
     accel: enemyAcceleration,
     targeting: enemyTargeting,
-    cycle: (enemy, c, shipSize, showBounding, acceleration, gameOverCondition, canvas, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount) => {
-        npc.create(gameOverCondition, enemy, canvas, shipSize, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount);
+    cycle: (ship, enemy, c, shipSize, showBounding, acceleration, gameOverCondition, canvas, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount) => {
+        npc.create(ship, gameOverCondition, enemy, canvas, shipSize, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount);
         npc.draw(enemy, c, shipSize, showBounding);
         npc.accel(enemy, acceleration);
         npc.targeting(ship, enemy);

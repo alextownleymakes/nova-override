@@ -35,6 +35,7 @@ function shipDraw(c, ship, shipSize, gameOverCondition, showBounding) {
 }
 function thrusterDraw(c, ship, shipSize) {
     // console.log("drawing thruster");
+    if (!ship.accel && !ship.decel) { return; }
     c.strokeStyle = "orange",
         c.lineWidth = shipSize / 10;
     c.beginPath();
@@ -172,20 +173,9 @@ function playerExplosion(ship, explosionCount, c) {
 }
 
 function shipScreenWrap() {
-    if (ship.x > window.innerWidth) {
-        ship.x = 1;
-    }
-
-    if (ship.y > window.innerHeight) {
-        ship.y = 1;
-    }
-    if (ship.x < 0) {
-        ship.x = window.innerWidth;
-    }
-
-    if (ship.y < 0) {
-        ship.y = window.innerHeight;
-    }
+    // OLD behavior: wrap around the screen edges.
+    // With a camera locked to the player, the "world" is effectively unbounded,
+    // so wrapping is disabled.
 }
 
 const draw = (c, ship, shipSize, gameOverCondition, showBounding) => {
@@ -208,6 +198,6 @@ const player = {
         player.lim(x, y, speedCap);
         player.accel(c, ship, shipSize, acceleration);
         player.decel(ship, d);
-        player.wrap();
+        // player.wrap(); // disabled (unbounded world)
     }
 };
