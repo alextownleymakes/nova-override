@@ -2,14 +2,14 @@ var canvas = document.querySelector('canvas');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let universe = new Universe();
+let universe = new Universe(1000);
 let controller = new Controller();
 
 var c = canvas.getContext('2d');
 const fps = 30; // frames per second
 const shipSize = 30;
 let angle = 90;
-let handling = 8;
+let handling = 5;
 let acceleration = 3;
 let deceleration = .2;
 let globalSpeedCap = 10;
@@ -49,7 +49,7 @@ var ship = {
     angle: 90,
     accel: false,
     decel: false,
-    handling: handling,
+    handling,
     thrust: {
         x:0,
         y:0
@@ -58,6 +58,7 @@ var ship = {
     fireGun: false,
     bullets: [],
     explosions: [],
+    bodyLock: null,
 }
 var enemy = {
     ships: [],
@@ -75,17 +76,17 @@ function update() {
     c.save();
     c.translate(canvas.width / 2 - camX, canvas.height / 2 - camY);
 
-    uni.cycle(universe, c);
-
+    
     player.cycle(c, ship, shipSize, gameOverCondition, showBounding, ship.thrust.x, ship.thrust.y, ship.speedCap, acceleration, deceleration, angle, controller);
     combat.player.cycle(ship, bulletSpeed, maxBullets, gameOver, gameOverCondition, enemy, canvas, c, distanceBetween, playerExplosion, explosionCount);
     npc.cycle(ship, enemy, c, shipSize, showBounding, acceleration, gameOverCondition, canvas, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount);
     combat.npc.cycle(ship, enemy, canvas, gameOverCondition, bulletSpeed, randomTimer, playerExplosion, playerHealth, distanceBetween, c, explosion, killCount, waveKill, waveCount, theScore);
-
+    uni.cycle(universe, c);
+    
     c.restore();
 
     // HUD is DOM-based, leave in screen-space
-    hud.draw(waveCount, theScore, killCount);
+    hud.draw(ship);
     gameOver(playerHealth, gameOverCondition, theScore, maxEnemies);
 }
 

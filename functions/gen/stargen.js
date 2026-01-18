@@ -130,6 +130,14 @@ function initialCompositionFromZ(Z) {
   return { H: X, He: Y, metals: Z };
 }
 
+// Returns max stable planetary orbit radius in AU
+// 50 AU for a 1-solar-mass star
+function maxPlanetOrbitAU(star) {
+    const M = Math.max(0.1, Number(star.mass) || 1);
+    return 50 * Math.cbrt(M);
+}
+
+
 // --- Classes ---
 
 
@@ -137,10 +145,12 @@ class Star extends Body {
   constructor(x, y, initialMass, metallicityZ, ageYears) {
     super(x, y, initialMass);
 
+    this.id = universe.useBodyCount();
     // fundamental inputs
     this.initialMass = initialMass;   // M☉
     this.metallicity = metallicityZ;  // Z
     this.age = ageYears;              // years
+    this.gravitylock = 0;
 
     // derived
     this.phase = "protostar";
@@ -155,8 +165,13 @@ class Star extends Body {
 
     this.body = "Star";
 
-    this.x = Math.random() * 1000;
-    this.y = Math.random() * 1000;
+    this.x = Math.random() * 10000;
+    this.y = Math.random() * 10000;
+
+    this.setxy = ({x, y}) => {
+        this.x = x;
+        this.y = y;
+    };
 
     this.updateDerived();
   }
@@ -201,15 +216,20 @@ class Star extends Body {
         this.radius = 0;          // you can store Schwarzschild radius separately
         this.temperature = 0;
       }
+      
     }
 
     this.mass = this.currentMass;
     this.spectralType = spectralTypeFromTeff(this.temperature);
     this.chemicalComposition = initialCompositionFromZ(Z);
+    this.gravitylock = maxPlanetOrbitAU(this);
 
     // environment for planets
     this.habitableZone = habitableZoneAU(this.luminosity);
     this.snowLine = snowLineAU(this.luminosity);
+    const newCoords = determineStarCoords(this);
+    // console.log('star coords', newCoords);
+    this.setxy(newCoords);
   }
 }
 
@@ -219,3 +239,148 @@ function generateStar() {
     return star;
 }
 
+// determineStarCoords(star, universe) -> {x, y} in WORLD UNITS
+// - Defines 1 GU as the Sun<->Proxima distance in your game scale (default: 22688 units)
+// - On first run, computes & sets universe.radius (in GU) based on universe.starCount
+// - Places stars inside a CIRCLE centered at (0,0), denser toward the center
+// - Enforces a minimum separation based on radius-from-center -> expected GU spacing,
+//   with a 25% tolerance (min = 0.75 * expected)
+//
+// Assumptions about `universe`:
+// - universe.starCount (preferred) OR universe.stars.length OR universe.bodies.length
+// - existing stars live in universe.stars or universe.bodies and have {x,y} in world units
+// - optional: universe.setradius(r) setter; otherwise universe.radius is set directly
+//
+// Assumptions about stars:
+// - your star instance has setxy({x,y}) and will store x/y in world units
+
+function determineStarCoords(star) {
+    // console.log(universe);
+  const GU_TO_UNITS = Number(universe.guUnit ?? 22688); // your 60s travel distance
+
+  // --- helpers ---
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  // piecewise log interpolation through:
+  // 1% -> 0.1 GU, 50% -> 1 GU, 100% -> 10 GU
+  function expectedSpacingGU(frac) {
+    const f = clamp(frac, 0.01, 1.0);
+    if (f <= 0.5) {
+      const t = (f - 0.01) / (0.5 - 0.01);
+      const logy = lerp(Math.log10(0.1), Math.log10(1.0), t);
+      return Math.pow(10, logy);
+    } else {
+      const t = (f - 0.5) / (1.0 - 0.5);
+      const logy = lerp(Math.log10(1.0), Math.log10(10.0), t);
+      return Math.pow(10, logy);
+    }
+  }
+
+  // biased toward center; bigger exponent = more central density
+  function sampleRadiusGU(R) {
+    const exponent = Number(universe.densityExponent ?? 2.2);
+    return R * Math.pow(Math.random(), exponent);
+  }
+
+  // get existing star list
+  const pool =
+    (Array.isArray(universe.bodies) && universe.bodies) ||
+    [];
+
+  // --- Step 1: ensure universe.radius (in GU) exists ---
+  if (!universe.radius) {
+    const N =
+      Number(universe.starCount) ||
+      pool.length ||
+      0;
+
+      console.log('star count for radius calc', N);
+
+
+    // Projected density heuristic:
+    // If density is ~1 star / GU^2, then R ≈ sqrt(N / pi).
+    // Multiply by a loosen factor so large N isn't impossibly packed.
+    const loosen = Number(universe.radiusLoosen ?? 1.35);
+    let R = Math.sqrt(Math.max(1, N) / Math.PI) * loosen;
+
+    // Guarantee enough room for the outer spacing idea (10 GU-ish outer region)
+    console.log('universe radius (GU)', R);
+    R = Math.max(12, R);
+    if (typeof universe.setradius === "function") universe.setradius(R);
+    else universe.radius = R;
+  }
+
+  const radiusGU = Number(universe.radius);
+
+  // --- Steps 2–5: sample coords until they satisfy min-distance rule ---
+  const MAX_ATTEMPTS = Number(universe.maxPlacementAttempts ?? 5000);
+  const tolerance = 0.25; // ±25% => min is 75%
+  const baseMinFactor = 1 - tolerance; // 0.75
+
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    // Step 2: random point in circle, dense toward center
+    const rGU = sampleRadiusGU(radiusGU);
+    const theta = Math.random() * Math.PI * 2;
+
+    const xGU = rGU * Math.cos(theta);
+    const yGU = rGU * Math.sin(theta);
+
+    // Step 3: compute expected spacing from center distance, then min allowed
+    const frac = rGU / radiusGU;
+    let expectedGU = expectedSpacingGU(frac);
+
+    // optional: add some randomness within your ±25% tolerance band
+    // (keeps it from feeling grid-like)
+    const jitter = 1 + (Math.random() * 2 - 1) * tolerance; // [0.75..1.25]
+    expectedGU *= jitter;
+
+    let minDistGU = expectedGU * baseMinFactor; // the "LOWEST tolerance limit"
+
+    // If galaxy is extremely dense, you can allow graceful relaxation after many fails
+    if (attempt > 1500) minDistGU *= 0.95;
+    if (attempt > 3000) minDistGU *= 0.90;
+
+    // Step 3: check for violations vs existing stars
+    let ok = true;
+    for (let i = 0; i < pool.length; i++) {
+      const b = pool[i];
+      if (!b) continue;
+
+      // optional: only check stars if your universe includes other body types
+      if (b.body && b.body !== "Star" && b.type && b.type !== "Star") {
+        // if you don't label bodies, comment this block out
+      }
+
+      const bx = Number(b.x);
+      const by = Number(b.y);
+      if (!Number.isFinite(bx) || !Number.isFinite(by)) continue;
+
+      const bxGU = bx / GU_TO_UNITS;
+      const byGU = by / GU_TO_UNITS;
+
+      const dx = bxGU - xGU;
+      const dy = byGU - yGU;
+      const d2 = dx * dx + dy * dy;
+
+      if (d2 < minDistGU * minDistGU) {
+        ok = false;
+        break;
+      }
+    }
+
+    // Step 5: return if passes
+    if (ok) {
+      return { x: xGU * GU_TO_UNITS, y: yGU * GU_TO_UNITS };
+    }
+  }
+
+  // Fallback: if it's too dense to satisfy constraints, return something anyway.
+  // (Better than infinite loop.)
+  const fallbackTheta = Math.random() * Math.PI * 2;
+  const fallbackRGU = sampleRadiusGU(radiusGU);
+  return {
+    x: fallbackRGU * Math.cos(fallbackTheta) * GU_TO_UNITS,
+    y: fallbackRGU * Math.sin(fallbackTheta) * GU_TO_UNITS
+  };
+}

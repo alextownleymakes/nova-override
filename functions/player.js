@@ -70,7 +70,7 @@ function shipRotation(controller, ship, handling, angle) {
             ship.angle = 0
             console.log('Angle reset to 0 from 360');
         }
-        ship.angle += handling;
+        ship.angle += ship.handling;
         ship.a = ship.angle / 180 * Math.PI; // convert to radians
         console.log('Current ship angle:', ship.angle);
     }
@@ -80,7 +80,7 @@ function shipRotation(controller, ship, handling, angle) {
             ship.angle = 360
             console.log('Angle reset to 360 from 0');
         }
-        ship.angle -= handling;
+        ship.angle -= ship.handling;
         ship.a = ship.angle / 180 * Math.PI;
         console.log('Current ship angle:', ship.angle);
     }
