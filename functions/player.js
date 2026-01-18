@@ -72,7 +72,6 @@ function shipRotation(controller, ship, handling, angle) {
         }
         ship.angle += ship.handling;
         ship.a = ship.angle / 180 * Math.PI; // convert to radians
-        console.log('Current ship angle:', ship.angle);
     }
 
     if (controller.rightTurn) {
@@ -82,7 +81,6 @@ function shipRotation(controller, ship, handling, angle) {
         }
         ship.angle -= ship.handling;
         ship.a = ship.angle / 180 * Math.PI;
-        console.log('Current ship angle:', ship.angle);
     }
 
 }
@@ -153,7 +151,6 @@ function reverseAngle(ship, controller) {
     }
 }
 
-
 function playerExplosion(ship, explosionCount, c) {
     for (let i = 0; i < explosionCount; i++) {
         ship.explosions.push({
@@ -178,6 +175,26 @@ function shipScreenWrap() {
     // so wrapping is disabled.
 }
 
+function shipTurnToTarget(ship) {
+    const body = ship.bodyLock;
+    if (!controller.target || !body) { return; }
+    const desiredAngle = Math.atan2(body.y - ship.y, body.x - ship.x) * 180 / Math.PI;
+    let angleDifference = desiredAngle - ship.angle;
+
+    if (angleDifference > 180) {
+        angleDifference -= 360;
+    } else if (angleDifference < -180) {
+        angleDifference += 360;
+    }
+
+    if (Math.abs(angleDifference) < ship.handling) {
+        ship.angle = desiredAngle;
+    }
+
+    ship.angle += Math.sign(angleDifference) * ship.handling;
+    ship.a = ship.angle / 180 * Math.PI;
+}
+
 const draw = (c, ship, shipSize, gameOverCondition, showBounding) => {
     shipDraw(c, ship, shipSize, gameOverCondition, showBounding);
     thrusterDraw(c, ship, shipSize);
@@ -191,13 +208,16 @@ const player = {
     decel: shipDeceleration,
     wrap: shipScreenWrap,
     flip: reverseAngle,
+    target: shipTurnToTarget,
     cycle: (c, ship, shipSize, gameOverCondition, showBounding, x, y, speedCap, acceleration, d, angle, controller) => {
         player.draw(c, ship, shipSize, gameOverCondition, showBounding);
         player.rot(controller, ship, angle);
         player.flip(ship, controller);
+        player.target(ship);
         player.lim(ship, x, y, speedCap);
         player.accel(c, ship, shipSize, acceleration);
         player.decel(ship, d);
         // player.wrap(); // disabled (unbounded world)
     }
 };
+

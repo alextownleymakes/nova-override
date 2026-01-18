@@ -19,14 +19,12 @@ function keyboardMovement(controller, ship, showBounding, gameOverCondition) {
                 ship.decel = false;
                 controller.setAccel(true);
                 controller.setDecel(false);
-                console.log('moving forward');
                 break;
 
             //key D or RIGHT
             case 68:
             case 39:
                 controller.setRightTurn(true);
-                console.log('turning right');
 
                 break;
 
@@ -36,7 +34,6 @@ function keyboardMovement(controller, ship, showBounding, gameOverCondition) {
                 break;
             case 40:
                 // reverse angle
-                console.log('reverse thrust not implemented yet');
 
                 break;
 
@@ -53,6 +50,10 @@ function keyboardMovement(controller, ship, showBounding, gameOverCondition) {
                 ship.fireGun = true;
                 controller.setFireGun(true);
 
+                break;
+            // key Tab
+            case 9:
+                controller.setTarget(true);
                 break;
 
             case 66:
@@ -128,6 +129,9 @@ function keyboardMovement(controller, ship, showBounding, gameOverCondition) {
                 controller.setFireGun(false);
 
                 break;
+            case 9:
+                controller.setTarget(false);
+                break;
         }
 
         e.preventDefault();
@@ -144,6 +148,7 @@ class Controller {
         this.leftTurn = false;
         this.showBounding = false;
         this.flip = false;
+        this.target = false;
         this.setAccel = this.setAccel.bind(this);
         this.setDecel = this.setDecel.bind(this);
         this.setFireGun = this.setFireGun.bind(this);
@@ -151,6 +156,7 @@ class Controller {
         this.setLeftTurn = this.setLeftTurn.bind(this);
         this.toggleShowBounding = this.toggleShowBounding.bind(this);
         this.setFlip = this.setFlip.bind(this);
+        this.setTarget = this.setTarget.bind(this);
     }
 
     setAccel = (accel) => {
@@ -179,5 +185,9 @@ class Controller {
 
     toggleShowBounding = () => {
         this.showBounding = !this.showBounding;
+    }
+
+    setTarget = (target) => {
+        this.target = target;
     }
 }
