@@ -119,7 +119,7 @@ function shipDeceleration(ship, d) {
     }
 }
 
-function thrustLimiter(x, y, s) {
+function thrustLimiter(ship, x, y, s) {
     if (x >= s) { ship.thrust.x = s - .5 };
     if (x <= -s) { ship.thrust.x = -s + .5 };
     if (y >= s) { ship.thrust.y = s - .5 };
@@ -130,7 +130,7 @@ function reverseAngle(ship, controller) {
     if (controller.flip) {
         let currentAOM = Math.atan2(-ship.thrust.y, ship.thrust.x) * 180 / Math.PI;
         let targetA = Math.floor((currentAOM + 180) % 360);
-        if (ship.angle !== targetA || Math.abs(ship.angle - targetA) < handling) {
+        if (ship.angle !== targetA || Math.abs(ship.angle - targetA) < ship.handling) {
             if (ship.angle < 0) {
                 ship.angle = 360 + ship.angle;
             }
@@ -193,9 +193,9 @@ const player = {
     flip: reverseAngle,
     cycle: (c, ship, shipSize, gameOverCondition, showBounding, x, y, speedCap, acceleration, d, angle, controller) => {
         player.draw(c, ship, shipSize, gameOverCondition, showBounding);
-        player.rot(controller, ship, handling, angle);
+        player.rot(controller, ship, angle);
         player.flip(ship, controller);
-        player.lim(x, y, speedCap);
+        player.lim(ship, x, y, speedCap);
         player.accel(c, ship, shipSize, acceleration);
         player.decel(ship, d);
         // player.wrap(); // disabled (unbounded world)

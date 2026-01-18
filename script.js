@@ -2,6 +2,7 @@ var canvas = document.querySelector('canvas');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+let universe = new Universe();
 let controller = new Controller();
 
 var c = canvas.getContext('2d');
@@ -73,6 +74,8 @@ function update() {
     const camY = ship.y;
     c.save();
     c.translate(canvas.width / 2 - camX, canvas.height / 2 - camY);
+
+    uni.cycle(universe, c);
 
     player.cycle(c, ship, shipSize, gameOverCondition, showBounding, ship.thrust.x, ship.thrust.y, ship.speedCap, acceleration, deceleration, angle, controller);
     combat.player.cycle(ship, bulletSpeed, maxBullets, gameOver, gameOverCondition, enemy, canvas, c, distanceBetween, playerExplosion, explosionCount);

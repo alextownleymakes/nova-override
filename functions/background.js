@@ -24,7 +24,6 @@ function starsDraw(stars, c) {
         const strokeColor = starTwinkleColor(s);
         c.strokeStyle = strokeColor;
         c.fillStyle = strokeColor;
-        if (i === 1) console.log(strokeColor);
         c.beginPath();
         c.arc(s.x, s.y, .3, 0, Math.PI * 2, false);
         c.stroke();

@@ -105,11 +105,9 @@ function damagePlayer(ship, enemy, distanceBetween, playerExplosion, playerHealt
     for (let k = 0; k < enemy.ships.length; k++) {
         for (let i = 0; i < enemy.ships[k].bullets.length; i++) {
             if (distanceBetween(enemy.ships[k].bullets[i].x, enemy.ships[k].bullets[i].y, ship.x, ship.y) < enemy.ships[k].bullets[i].r + ship.r) {
-                console.log('enemy bullet hit player');
                 // enemy.ships.splice(j,1);
                 // explosion(enemy.ships[j]);
                 playerExplosion(ship, explosionCount, c);
-                console.log('that\'s a hit!');
                 if (gameOverCondition == false) {
                     const ph = document.getElementById(playerHealth);
                     ph && (ph.style.backgroundColor = "rgba(0,0,0,0)");

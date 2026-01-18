@@ -1,7 +1,6 @@
 // @ts-check
 
 function enemyCreate(ship, gameOverCondition, enemy, canvas, shipSize, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount) {
-console.log(globalSpeedCap);
     if (gameOverCondition == false) {
         while (enemy.ships.length < maxEnemies && spawnedThisWave < enemiesThisWave) {
             console.log('Spawning enemy ship');
