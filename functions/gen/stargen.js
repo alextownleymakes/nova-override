@@ -136,7 +136,9 @@ function initialCompositionFromZ(Z) {
 // 50 AU for a 1-solar-mass star
 function maxPlanetOrbitAU(star) {
   const M = Math.max(0.1, Number(star.mass) || 1);
-  return 50 * Math.cbrt(M);
+  const result = 50 * Math.cbrt(M);
+  console.log('max planet orbit AU', result);
+  return result;
 }
 
 
@@ -193,6 +195,16 @@ class Star extends Body {
       // crude protostar placeholders
       this.luminosity = msLuminosity(M) * 0.3;
       this.radius = msRadius(M) * 2.0;
+
+      // radius distance is measured in R☉
+      // wait no that  makes no sense because R☉ is not not a measurement of distance
+      // au is a distance, miles is a distance, lightyears is a distance but not R☉
+      // so to find out how many miles it is, we multiply R☉ by the number of miles in R☉
+      // which is 695700 miles
+      // so if we have a radius of 2 R☉, that is 2 * 695700 = 1,391,400 miles
+      // which is 1,391,400 / 5280 = 263.56 AU
+      // 1 R☉ in 
+
       this.temperature = msTeffFromLR(this.luminosity, this.radius);
     } else if (this.age <= tMS) {
       this.phase = "main_sequence";
@@ -240,7 +252,14 @@ class Star extends Body {
 
     this.bodies = this.bodies || [];
     for (const pp of this.planetParams) {
+      console.log('aAU: ', pp.aAU)
       const planet = new Planet(this, pp, universe, zoomFactors);
+      const orbit = generatePlanetOrbitOffset(pp);
+      planet.orbit = orbit;
+      const baseX = this.coords[0].x + orbit.x;
+      const baseY = this.coords[0].y + orbit.y;
+
+      planet.setxy({ x: baseX, y: baseY });
       this.bodies.push(planet);
       universe.bodies.push(planet); // if you want planets globally
     }

@@ -7,6 +7,8 @@
 // meaning a ship is gravity locked to a star when within about 1180 au of it.
 // 1180 AU is about 0.0187 light years, or about 1,170,000,000 miles
 // that distance in the solar system is about 15 times the distance from the sun to pluto (which is about 39.5 au)
+// in IGU, pluto would be 39.5 * 0.0847 = 3.34 IGU from the sun.
+// 1 R☉ in IGU is 432690 miles / 93000000 miles = 0.00465 au * 0.0847 IGU = 0.000393955 IGU
 
 const AU_MILES = 92955807;   // 1 AU in miles
 const GU_TO_AU = (au) => au * 0.0847; // 1 gu = 0.142 au
@@ -15,8 +17,9 @@ const PX_SCALE = 10000;
 const SUN_RADIUS_MILES = 432690; // Sun radius in miles
 const SUN_RADIUS_AU = SUN_RADIUS_MILES / AU_MILES; // Sun radius in AU
 const AU_TO_GALACTIC = (au) => au * 0.085; // 1 AU = 0.085 galactic units
-const zoomFactors = [1, 10, 50]; // zoom levels
-const GRAV_LOCK = 100;
+const zoomFactors = [1, 100, 1000]; // zoom levels
+const GRAV_LOCK = 20;
+const solarRadiiToIGU = (r) => r * SUN_RADIUS_AU * 0.0847; // convert solar radii to in-game units
 
 function starRadiusPx(star) {
     return AU_TO_GALACTIC(star.radius / AU_MILES);
@@ -150,8 +153,8 @@ function isShipInsideOortCloud(star, ship, oortRadiusPx) {
     return (dx * dx + dy * dy) <= (oortRadiusPx * oortRadiusPx);
 }
 
-function drawUniverse(universe, c) {
-    universe.bodies.forEach(body => {
+function drawBodies(bodies, c) {
+    bodies.forEach(body => {
 
         if (
             // first check - is star within 0.05 gu
@@ -164,14 +167,13 @@ function drawUniverse(universe, c) {
             body.type !== 'Star' && ship.bodyLock && ship.bodyLock.id !== body.starId
         ) { return; }
 
-
         if (isShipInsideOortCloud(body, ship, GRAV_LOCK) && !ship.bodyLock) {
             ship.bodyLock = body;
             universe.zoomLevel = 1;
         }
 
         setTimeout(() => {// stopping point - 900? why is it jumping around?
-            if (ship.bodyLock && ship.bodyLock.id === body.id && !isShipInsideOortCloud(body, ship, 1000)) {
+            if (ship.bodyLock && ship.bodyLock.id === body.id && !isShipInsideOortCloud(body, ship, 2000)) {
                 ship.bodyLock = null;
                 universe.zoomLevel = 0;
             }
@@ -182,7 +184,7 @@ function drawUniverse(universe, c) {
 
         // star body
         c.beginPath();
-        c.arc(body.coords[universe.zoomLevel].x, body.coords[universe.zoomLevel].y, 10 * zoomFactors[universe.zoomLevel], 0, Math.PI * 2);
+        c.arc(body.coords[universe.zoomLevel].x, body.coords[universe.zoomLevel].y, Math.max(solarRadiiToIGU(body.radius) * zoomFactors[universe.zoomLevel], 10), 0, Math.PI * 2);
         c.fillStyle = 'yellow';
         if (body.body === 'Star') {
         } else if (body.body === 'Planet') {
@@ -208,8 +210,12 @@ function drawUniverse(universe, c) {
             c.stroke();
         }
 
-        // c.fill();
+        body.bodies && drawBodies(body.bodies, c);
     });
+}
+
+function drawUniverse(universe, c) {
+    drawBodies(universe.bodies, c);
 }
 
 const uni = {

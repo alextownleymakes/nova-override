@@ -10,6 +10,7 @@ class Planet extends Body {
     this.id = params.id;
     this.starId = params.starId;
     this.star = star;
+    this.orbit = {};
 
     // orbit
     this.aAU = params.aAU;
