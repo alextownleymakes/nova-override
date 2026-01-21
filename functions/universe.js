@@ -164,8 +164,6 @@ function drawUniverse(universe, c) {
         if (isShipInsideOortCloud(body, ship, GRAV_LOCK) && !ship.bodyLock) {
             ship.bodyLock = body;
             universe.zoomLevel = 1;
-            // ship.x = ship.x * zoomFactors[universe.zoomLevel];
-            // ship.y = ship.y * zoomFactors[universe.zoomLevel];
         }
 
         setTimeout(() => {// stopping point - 900? why is it jumping around?
