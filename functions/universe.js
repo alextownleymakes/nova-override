@@ -144,20 +144,15 @@ function isShipInsideOortCloud(star, ship, oortRadiusPx) {
 function drawUniverse(universe, c) {
     universe.bodies.forEach(body => {
 
-
-        
-        if (body.type !== 'Star' && !ship.bodyLock) { return; }   
+        // first check - is star within 0.05 gu of ship?
         if (!isStarWithinGU(body, ship, .05)) { return; }
-        console.log(body.name + ' - ' + body.type, body)
-
+        // second check - don't show any children of any stars if no gravity lock
+        if (body.type !== 'Star' && !ship.bodyLock) { return; }
+        // third check - if star is locked, only show it and its children
         if (body.type === 'Star' && ship.bodyLock && ship.bodyLock.id !== body.id) {
             return;
         }
-        
-
-
-        
-        if (body.type !== 'Star' && !ship.bodyLock) { return; }
+        // fourth check - if body is not a star and ship is locked, only show it if it's a child of the locked star
         if (body.type !== 'Star' && ship.bodyLock && ship.bodyLock.id !== body.starId) { return; }
 
 
