@@ -6,7 +6,7 @@ const PX_SCALE = 10000;
 const SUN_RADIUS_MILES = 432690; // Sun radius in miles
 const SUN_RADIUS_AU = SUN_RADIUS_MILES / AU_MILES; // Sun radius in AU
 const AU_TO_GALACTIC = (au) => au * 0.085; // 1 AU = 0.085 galactic units
-const zoomFactors = [1, 11800];
+const zoomFactors = [1, 10, 50]; // zoom levels
 const GRAV_LOCK = 100;
 
 function starRadiusPx(star) {
@@ -14,13 +14,11 @@ function starRadiusPx(star) {
 }
 
 function gravityLockPx_AU(star) {
-    // console.log(star.gravitylock)
     return (star.gravitylock * AU_MILES) / (PX_SCALE * 1000);
 }
 
 class Universe {
     constructor(starCount) {
-        console.log(starCount)
         this.gravityConstant = 0.4;
         this.bodies = [];
         this.init = false;
@@ -42,7 +40,6 @@ class Universe {
     }
 
     genStars(starCount) {
-        console.log('stargen', starCount)
         for (let i = 0; i < starCount; i++) {
             const star = generateStar();
             star.name = generateName('star');
@@ -93,8 +90,7 @@ class Body {
     constructor(x, y, mass) {
         this.body = "Body";
         this.name = "Unnamed";
-        this.x = x;
-        this.y = y;
+        this.coords = [{ x: x, y: y }];
         this.mass = mass;      // current mass in M☉ for now
         this.radius = 0;       // R☉
         this.chemicalComposition = {};
@@ -137,9 +133,8 @@ function isStarWithinGU(star, ship, gu = 10) {
 }
 
 function isShipInsideOortCloud(star, ship, oortRadiusPx) {
-    console.log('Checking Oort cloud for star:', star.name, oortRadiusPx);
-    const sx = star.x * zoomFactors[universe.zoomLevel];
-    const sy = star.y * zoomFactors[universe.zoomLevel];
+    const sx = star.coords[universe.zoomLevel].x;
+    const sy = star.coords[universe.zoomLevel].y;
     const px = ship.x * zoomFactors[universe.zoomLevel];
     const py = ship.y * zoomFactors[universe.zoomLevel];
 
@@ -148,12 +143,6 @@ function isShipInsideOortCloud(star, ship, oortRadiusPx) {
 
     const distToStar = Math.sqrt(dx * dx + dy * dy);
     const delta = distToStar - oortRadiusPx;
-
-    console.log(
-        `Oort Δ for ${star.name}:`,
-        delta.toFixed(2),
-        `(ship→star=${distToStar.toFixed(2)}, radius=${oortRadiusPx})`
-    );
 
     return (dx * dx + dy * dy) <= (oortRadiusPx * oortRadiusPx);
 }
@@ -165,32 +154,27 @@ function drawUniverse(universe, c) {
             return;
         }
 
-        if (isShipInsideOortCloud(body, ship, GRAV_LOCK * zoomFactors[universe.zoomLevel]) && !ship.bodyLock) {
+        if (isShipInsideOortCloud(body, ship, GRAV_LOCK) && !ship.bodyLock) {
             ship.bodyLock = body;
-            console.log('locked to body:', body);
             universe.zoomLevel = 1;
-            ship.x = ship.x * zoomFactors[universe.zoomLevel];
-            ship.y = ship.y * zoomFactors[universe.zoomLevel];
+            // ship.x = ship.x * zoomFactors[universe.zoomLevel];
+            // ship.y = ship.y * zoomFactors[universe.zoomLevel];
         }
 
-        // setTimeout(() => {
-        //     if (ship.bodyLock && ship.bodyLock.id === body.id && !isShipInsideOortCloud(body, ship, GRAV_LOCK * zoomFactors[universe.zoomLevel])) {
-        //         ship.bodyLock = null;
-        //         ship.x = ship.x / zoomFactors[universe.zoomLevel];
-        //         ship.y = ship.y / zoomFactors[universe.zoomLevel];
-        //         universe.zoomLevel = 0;
-        //         console.log('unlocked from body:', body);
-        //     }
-        // }, 5000);
+        setTimeout(() => {// stopping point - 900? why is it jumping around?
+            if (ship.bodyLock && ship.bodyLock.id === body.id && !isShipInsideOortCloud(body, ship, 1000)) {
+                ship.bodyLock = null;
+                universe.zoomLevel = 0;
+            }
+        }, 5000);
 
         if (!isStarWithinGU(body, ship, .2)) { return; }
         c.beginPath();
-        // console.log(`Drawing body: ${body.name} of type ${body.body} at (${body.x}, ${body.y}) with radius ${body.radius}`);
         const rPx = starRadiusPx(body);
 
         // star body
         c.beginPath();
-        c.arc(body.x * zoomFactors[universe.zoomLevel], body.y * zoomFactors[universe.zoomLevel], 10 * zoomFactors[universe.zoomLevel], 0, Math.PI * 2);
+        c.arc(body.coords[universe.zoomLevel].x, body.coords[universe.zoomLevel].y, 10 * zoomFactors[universe.zoomLevel], 0, Math.PI * 2);
         c.fillStyle = 'yellow';
         if (body.body === 'Star') {
         } else if (body.body === 'Planet') {
@@ -209,7 +193,8 @@ function drawUniverse(universe, c) {
         if (lockPx > rPx) {
             c.beginPath();
             // console.log(lockPx)
-            c.arc(body.x * zoomFactors[universe.zoomLevel], body.y * zoomFactors[universe.zoomLevel], GRAV_LOCK * zoomFactors[universe.zoomLevel], 0, Math.PI * 2);
+            const z = zoomFactors[universe.zoomLevel];
+            c.arc(body.coords[universe.zoomLevel].x, body.coords[universe.zoomLevel].y, GRAV_LOCK * z, 0, Math.PI * 2);
             c.strokeStyle = "rgba(0, 140, 255, 0.7)";
             c.lineWidth = 2;
             c.stroke();

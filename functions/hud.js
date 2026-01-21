@@ -5,6 +5,7 @@ function overlayRefresh(ship) {
     const dist = document.getElementById('distance');
     const countdown = document.getElementById('countdown');
     coords && (coords.innerHTML = ship.x.toFixed(0) + ', ' + ship.y.toFixed(0));
+    dist && (dist.innerHTML = ship.bodyLock ? ship.bodyLock.name : 'N/A');
 
     //a timer that counts to 60 and returns the current ship coords at that exact moment as a string
     let timer = 60;

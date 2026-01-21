@@ -169,8 +169,11 @@ class Star extends Body {
     this.y = Math.random() * 10000;
 
     this.setxy = ({x, y}) => {
-        this.x = x;
-        this.y = y;
+        const layers = zoomFactors.length;
+        for (let i = 0; i < layers; i++) {
+            const z = zoomFactors[i];
+            this.coords[i] = { x: x * z,  y: y * z };
+        }
     };
 
     this.updateDerived();
@@ -294,10 +297,6 @@ function determineStarCoords(star) {
       Number(universe.starCount) ||
       pool.length ||
       0;
-
-      console.log('star count for radius calc', N);
-
-
     // Projected density heuristic:
     // If density is ~1 star / GU^2, then R ≈ sqrt(N / pi).
     // Multiply by a loosen factor so large N isn't impossibly packed.

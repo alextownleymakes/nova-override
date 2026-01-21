@@ -71,8 +71,8 @@ function update() {
     background.draw(canvas, ship, stars, starCount, c);
 
     // World in world-space, camera locked to player
-    const camX = ship.x;
-    const camY = ship.y;
+    const camX = (ship.x * zoomFactors[universe.zoomLevel]);
+    const camY = (ship.y * zoomFactors[universe.zoomLevel]);
     c.save();
     c.translate(canvas.width / 2 - camX, canvas.height / 2 - camY);
 
@@ -91,3 +91,20 @@ function update() {
 }
 
 $(document).ready(keyboardMovement(controller, ship, showBounding, gameOverCondition));
+
+//   // helpers commonly used in dweets
+//   const S = Math.sin, C = Math.cos;
+//   const R = (r,g,b,a=1) => `rgba(${r|0},${g|0},${b|0},${a})`;
+
+//   function frame(ms){
+//     const t = ms/1000;
+
+//     // optional: clear each frame (try commenting this out for trails)
+//     x.clearRect(0,0,c.width,c.height);
+
+//     // your snippet:
+//     // for(i=0;i<2e3;c.fillRect(i?960+i*S(F=260*(t+9)/i+S(i*i)):0,i?500+.2*(2*i*C(F)+2e4/i):0,K=i++?S(i)*9:2e3,K))c.fillStyle=R(99*i,2*i,i,i?1:.4)
+
+//     requestAnimationFrame(frame);
+//   }
+//   requestAnimationFrame(frame);

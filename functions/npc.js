@@ -3,7 +3,6 @@
 function enemyCreate(ship, gameOverCondition, enemy, canvas, shipSize, maxEnemies, enemiesThisWave, spawnedThisWave, angle, globalSpeedCap, spawnCount) {
     if (gameOverCondition == false) {
         while (enemy.ships.length < maxEnemies && spawnedThisWave < enemiesThisWave) {
-            console.log('Spawning enemy ship');
             // Spawn in WORLD space around the player (not screen coords)
             // so new enemies appear near-ish to you even after you fly far.
             const spawnRadiusX = canvas.width * 1.25;

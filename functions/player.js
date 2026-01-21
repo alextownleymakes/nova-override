@@ -6,26 +6,26 @@ function shipDraw(c, ship, shipSize, gameOverCondition, showBounding) {
             c.lineWidth = shipSize / 10;
         c.beginPath();
         c.moveTo( //nose of ship
-            ship.x + 4 / 3 * ship.r * Math.cos(ship.a),
-            ship.y - 4 / 3 * ship.r * Math.sin(ship.a)
+            (ship.x * zoomFactors[universe.zoomLevel]) + 4 / 3 * ship.r * Math.cos(ship.a),
+            (ship.y * zoomFactors[universe.zoomLevel]) - 4 / 3 * ship.r * Math.sin(ship.a)
         );
         c.lineTo( //rear left
-            ship.x - ship.r * (2 / 3 * Math.cos(ship.a) + Math.sin(ship.a)),
-            ship.y + ship.r * (2 / 3 * Math.sin(ship.a) - Math.cos(ship.a))
+            (ship.x * zoomFactors[universe.zoomLevel]) - ship.r * (2 / 3 * Math.cos(ship.a) + Math.sin(ship.a)),
+            (ship.y * zoomFactors[universe.zoomLevel]) + ship.r * (2 / 3 * Math.sin(ship.a) - Math.cos(ship.a))
         );
         c.lineTo( //rear right
-            ship.x - ship.r * (2 / 3 * Math.cos(ship.a) - Math.sin(ship.a)),
-            ship.y + ship.r * (2 / 3 * Math.sin(ship.a) + Math.cos(ship.a))
+            (ship.x * zoomFactors[universe.zoomLevel]) - ship.r * (2 / 3 * Math.cos(ship.a) - Math.sin(ship.a)),
+            (ship.y * zoomFactors[universe.zoomLevel]) + ship.r * (2 / 3 * Math.sin(ship.a) + Math.cos(ship.a))
         );
         c.closePath();
         c.stroke();
         c.fillStyle = "skyblue";
-        c.fillRect(ship.x - 1, ship.y - 1, 2, 2);
+        c.fillRect((ship.x * zoomFactors[universe.zoomLevel]) - 1, (ship.y * zoomFactors[universe.zoomLevel]) - 1, 2, 2);
 
         if (showBounding) {
             c.strokeStyle = "lime";
             c.beginPath();
-            c.arc(ship.x, ship.y, ship.r, 0, Math.PI * 2, false);
+            c.arc(ship.x * zoomFactors[universe.zoomLevel], ship.y * zoomFactors[universe.zoomLevel], ship.r, 0, Math.PI * 2, false);
             c.stroke();
         }
     }
@@ -33,6 +33,7 @@ function shipDraw(c, ship, shipSize, gameOverCondition, showBounding) {
 
     }
 }
+
 function thrusterDraw(c, ship, shipSize) {
     // console.log("drawing thruster");
     if (!ship.accel && !ship.decel) { return; }
@@ -40,35 +41,33 @@ function thrusterDraw(c, ship, shipSize) {
         c.lineWidth = shipSize / 10;
     c.beginPath();
     c.moveTo(
-        (ship.x - 2) - ship.r * (2 / 3 * Math.cos(ship.a) + 1 * Math.sin(ship.a)),
-        ship.y + ship.r * (2 / 3 * Math.sin(ship.a) - 1 * Math.cos(ship.a))
+        (ship.x * zoomFactors[universe.zoomLevel] - 2) - ship.r * (2 / 3 * Math.cos(ship.a) + 1 * Math.sin(ship.a)),
+        (ship.y * zoomFactors[universe.zoomLevel]) + ship.r * (2 / 3 * Math.sin(ship.a) - 1 * Math.cos(ship.a))
     );
     c.lineTo(
-        ship.x - ship.r * 5 / 3 * Math.cos(ship.a),
-        (ship.y - 7) + ship.r * 6 / 3 * Math.sin(ship.a)
+        (ship.x * zoomFactors[universe.zoomLevel]) - ship.r * 5 / 3 * Math.cos(ship.a),
+        ((ship.y * zoomFactors[universe.zoomLevel]) - 7) + ship.r * 6 / 3 * Math.sin(ship.a)
     );
     c.lineTo(
-        (ship.x - 2) - ship.r * (2 / 3 * Math.cos(ship.a) - .01 * Math.sin(ship.a)),
-        ship.y + ship.r * (3 / 6 * Math.sin(ship.a) + .01 * Math.cos(ship.a))
+        (ship.x * zoomFactors[universe.zoomLevel] - 2) - ship.r * (2 / 3 * Math.cos(ship.a) - .01 * Math.sin(ship.a)),
+        (ship.y * zoomFactors[universe.zoomLevel]) + ship.r * (3 / 6 * Math.sin(ship.a) + .01 * Math.cos(ship.a))
     )
     c.lineTo(
-        ship.x - ship.r * 5 / 3 * Math.cos(ship.a),
-        (ship.y + 7) + ship.r * 6 / 3 * Math.sin(ship.a)
+        (ship.x * zoomFactors[universe.zoomLevel]) - ship.r * 5 / 3 * Math.cos(ship.a),
+        ((ship.y * zoomFactors[universe.zoomLevel]) + 7) + ship.r * 6 / 3 * Math.sin(ship.a)
     );
     c.lineTo(
-        (ship.x - 2) - ship.r * (2 / 3 * Math.cos(ship.a) - 1 * Math.sin(ship.a)),
-        ship.y + ship.r * (3 / 6 * Math.sin(ship.a) + 1 * Math.cos(ship.a))
+        (ship.x * zoomFactors[universe.zoomLevel] - 2) - ship.r * (2 / 3 * Math.cos(ship.a) - 1 * Math.sin(ship.a)),
+        (ship.y * zoomFactors[universe.zoomLevel]) + ship.r * (3 / 6 * Math.sin(ship.a) + 1 * Math.cos(ship.a))
     )
     c.closePath();
     c.stroke();
 }
 
 function shipRotation(controller, ship, handling, angle) {
-    // console.log('props: ', leftTurn, rightTurn, ship, handling, angle);
     if (controller.leftTurn) {
         if (ship.angle == 360) {
             ship.angle = 0
-            console.log('Angle reset to 0 from 360');
         }
         ship.angle += ship.handling;
         ship.a = ship.angle / 180 * Math.PI; // convert to radians
@@ -77,7 +76,6 @@ function shipRotation(controller, ship, handling, angle) {
     if (controller.rightTurn) {
         if (ship.angle == 0) {
             ship.angle = 360
-            console.log('Angle reset to 360 from 0');
         }
         ship.angle -= ship.handling;
         ship.a = ship.angle / 180 * Math.PI;
@@ -90,16 +88,16 @@ function shipAcceleration(c, ship, shipSize, acceleration) {
     if (ship.accel) {
         thrusterDraw(c, ship, shipSize);
         if (ship.thrust.x < ship.speedCap && ship.thrust.x > -ship.speedCap) {
-            ship.thrust.x += acceleration * Math.cos(ship.a);
+            ship.thrust.x += (acceleration * Math.cos(ship.a)) / zoomFactors[universe.zoomLevel];
         }
         if (ship.thrust.y < ship.speedCap && ship.thrust.y > -ship.speedCap) {
-            ship.thrust.y += -acceleration * Math.sin(ship.a);
+            ship.thrust.y += (-acceleration * Math.sin(ship.a));
         }
         // if ( )
         // console.log(ship.thrust.y);
     }
-    ship.x += ship.thrust.x;
-    ship.y += ship.thrust.y;
+    ship.x += ship.thrust.x / zoomFactors[universe.zoomLevel];
+    ship.y += ship.thrust.y / zoomFactors[universe.zoomLevel];
 
 }
 
