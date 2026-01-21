@@ -1,3 +1,12 @@
+//conversion rates:
+// 1 gu = sol to proxima centauri distance, which is about 4.24 light years, or 22688 in-game units
+// 1 gu = 22688 in-game units
+// 1 au = earth to sun distance, which is about 93 million miles
+// if 2.4ly = 1 gu (or 22688 IGU), and 1 au in lightyears is 0.00001581 ly, then 1au = 0.00001581 / 4.24 gu = 0.00000373 gu, or in IGU 1 au = 0.00000373 * 22688 = 0.0847 IGU
+// 100 IGU in AU is 100 / 0.0847 = 1180.77 au
+// meaning a ship is gravity locked to a star when within about 1180 au of it.
+// 1180 AU is about 0.0187 light years, or about 1,170,000,000 miles
+// that distance in the solar system is about 15 times the distance from the sun to pluto (which is about 39.5 au)
 
 const AU_MILES = 92955807;   // 1 AU in miles
 const GU_TO_AU = (au) => au * 0.0847; // 1 gu = 0.142 au
@@ -144,16 +153,16 @@ function isShipInsideOortCloud(star, ship, oortRadiusPx) {
 function drawUniverse(universe, c) {
     universe.bodies.forEach(body => {
 
-        // first check - is star within 0.05 gu of ship?
-        if (!isStarWithinGU(body, ship, .05)) { return; }
-        // second check - don't show any children of any stars if no gravity lock
-        if (body.type !== 'Star' && !ship.bodyLock) { return; }
-        // third check - if star is locked, only show it and its children
-        if (body.type === 'Star' && ship.bodyLock && ship.bodyLock.id !== body.id) {
-            return;
-        }
-        // fourth check - if body is not a star and ship is locked, only show it if it's a child of the locked star
-        if (body.type !== 'Star' && ship.bodyLock && ship.bodyLock.id !== body.starId) { return; }
+        if (
+            // first check - is star within 0.05 gu
+            !isStarWithinGU(body, ship, .05) || 
+            // second check - don't show any children of any stars if no gravity lock
+            body.type !== 'Star' && !ship.bodyLock ||
+            // third check - if star is locked, only show it and its children
+            body.type === 'Star' && ship.bodyLock && ship.bodyLock.id !== body.id ||
+            // fourth check - if body is not a star and ship is locked, only show it if it's a child of the locked star
+            body.type !== 'Star' && ship.bodyLock && ship.bodyLock.id !== body.starId
+        ) { return; }
 
 
         if (isShipInsideOortCloud(body, ship, GRAV_LOCK) && !ship.bodyLock) {
