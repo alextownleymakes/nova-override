@@ -88,7 +88,7 @@ function shipAcceleration(c, ship, shipSize, acceleration) {
     if (ship.accel) {
         thrusterDraw(c, ship, shipSize);
         if (ship.thrust.x < ship.speedCap && ship.thrust.x > -ship.speedCap) {
-            ship.thrust.x += (acceleration * Math.cos(ship.a)) / zoomFactors[universe.zoomLevel];
+            ship.thrust.x += (acceleration * Math.cos(ship.a));
         }
         if (ship.thrust.y < ship.speedCap && ship.thrust.y > -ship.speedCap) {
             ship.thrust.y += (-acceleration * Math.sin(ship.a));

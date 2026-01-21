@@ -28,6 +28,8 @@ class Universe {
         this.radiusLoosen = 1.35;
         this.bodycount = 0;
         this.zoomLevel = 0;
+        this.densityExponent = 2.2;
+        this.maxPlacementAttempts = 5000;
     }
 
     addBody(body) {
@@ -45,6 +47,10 @@ class Universe {
             star.name = generateName('star');
             this.addBody(star);
         }
+    }
+
+    setRadius(r) {
+        this.radius = r;
     }
 
     update(starCount = this.starCount) {
@@ -86,18 +92,6 @@ class Universe {
     }
 }
 
-class Body {
-    constructor(x, y, mass) {
-        this.body = "Body";
-        this.name = "Unnamed";
-        this.coords = [{ x: x, y: y }];
-        this.mass = mass;      // current mass in M☉ for now
-        this.radius = 0;       // R☉
-        this.chemicalComposition = {};
-        this.vx = 0; this.vy = 0;
-    }
-}
-
 function generateName(type) {
     // random generation of names based on type
     const starters = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'New ', 'Alpha ', 'Beta ', 'Omega ', 'Great ', 'The ']
@@ -126,8 +120,8 @@ function gen(n, u) {
 function isStarWithinGU(star, ship, gu = 10) {
     const GU_TO_UNITS = 22688;
 
-    const dx = star.x - ship.x;
-    const dy = star.y - ship.y;
+    const dx = star.coords[0].x - ship.x;
+    const dy = star.coords[0].y - ship.y;
 
     return (dx * dx + dy * dy) <= (gu * GU_TO_UNITS) ** 2;
 }
@@ -150,9 +144,22 @@ function isShipInsideOortCloud(star, ship, oortRadiusPx) {
 function drawUniverse(universe, c) {
     universe.bodies.forEach(body => {
 
-        if (ship.bodyLock && ship.bodyLock.id !== body.id) {
+
+        
+        if (body.type !== 'Star' && !ship.bodyLock) { return; }   
+        if (!isStarWithinGU(body, ship, .1)) { return; }
+        console.log(body.name + ' - ' + body.type, body)
+
+        if (body.type === 'Star' && ship.bodyLock && ship.bodyLock.id !== body.id) {
             return;
         }
+        
+
+
+        
+        if (body.type !== 'Star' && !ship.bodyLock) { return; }
+        if (body.type !== 'Star' && ship.bodyLock && ship.bodyLock.id !== body.starId) { return; }
+
 
         if (isShipInsideOortCloud(body, ship, GRAV_LOCK) && !ship.bodyLock) {
             ship.bodyLock = body;
@@ -168,7 +175,6 @@ function drawUniverse(universe, c) {
             }
         }, 5000);
 
-        if (!isStarWithinGU(body, ship, .2)) { return; }
         c.beginPath();
         const rPx = starRadiusPx(body);
 

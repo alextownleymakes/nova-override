@@ -91,8 +91,8 @@ function enemyTargeting(ship, enemy) {
   for (let i = 0; i < enemy.ships.length; i++) {
     const e = enemy.ships[i];
 
-    const dx = ship.x - e.x;
-    const dy = ship.y - e.y;
+    const dx = (ship.x * zoomFactors[universe.zoomLevel]) - e.x;
+    const dy = (ship.y * zoomFactors[universe.zoomLevel]) - e.y;
 
     const angleToShip = Math.atan2(-dy, dx);
     const angleDiff = wrapPi(angleToShip - e.a); 

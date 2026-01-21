@@ -1,12 +1,14 @@
+// @ts-check
+
 const SOLAR = {
   Teff: 5772,          // K
   L: 1,                // L☉
   R: 1,                // R☉
   age: 4.57e9,         // yr
+  C_O: 0.55,
+  Mg_Si: 1.05,
+  Fe_Mg: 0.9
 };
-
-function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
-function log10(x) { return Math.log(x) / Math.LN10; }
 
 // --- Samplers (simple defaults) ---
 
@@ -103,10 +105,10 @@ function msTeffFromLR(L, R) {
 function spectralTypeFromTeff(T) {
   if (T >= 30000) return "O";
   if (T >= 10000) return "B";
-  if (T >= 7500)  return "A";
-  if (T >= 6000)  return "F";
-  if (T >= 5200)  return "G";
-  if (T >= 3700)  return "K";
+  if (T >= 7500) return "A";
+  if (T >= 6000) return "F";
+  if (T >= 5200) return "G";
+  if (T >= 3700) return "K";
   return "M";
 }
 
@@ -133,8 +135,8 @@ function initialCompositionFromZ(Z) {
 // Returns max stable planetary orbit radius in AU
 // 50 AU for a 1-solar-mass star
 function maxPlanetOrbitAU(star) {
-    const M = Math.max(0.1, Number(star.mass) || 1);
-    return 50 * Math.cbrt(M);
+  const M = Math.max(0.1, Number(star.mass) || 1);
+  return 50 * Math.cbrt(M);
 }
 
 
@@ -163,17 +165,17 @@ class Star extends Body {
     this.habitableZone = { inner: 0, outer: 0 }; // AU
     this.snowLine = 0; // AU
 
-    this.body = "Star";
+    this.type = "Star";
 
     this.x = Math.random() * 10000;
     this.y = Math.random() * 10000;
 
-    this.setxy = ({x, y}) => {
-        const layers = zoomFactors.length;
-        for (let i = 0; i < layers; i++) {
-            const z = zoomFactors[i];
-            this.coords[i] = { x: x * z,  y: y * z };
-        }
+    this.setxy = ({ x, y }) => {
+      const layers = zoomFactors.length;
+      for (let i = 0; i < layers; i++) {
+        const z = zoomFactors[i];
+        this.coords[i] = { x: x * z, y: y * z };
+      }
     };
 
     this.updateDerived();
@@ -219,7 +221,7 @@ class Star extends Body {
         this.radius = 0;          // you can store Schwarzschild radius separately
         this.temperature = 0;
       }
-      
+
     }
 
     this.mass = this.currentMass;
@@ -230,16 +232,25 @@ class Star extends Body {
     // environment for planets
     this.habitableZone = habitableZoneAU(this.luminosity);
     this.snowLine = snowLineAU(this.luminosity);
+    this.chemistry = chemistrySim(this);
+    this.planetParams = generatePlanetParamsForStar(this);
     const newCoords = determineStarCoords(this);
     // console.log('star coords', newCoords);
     this.setxy(newCoords);
+
+    this.bodies = this.bodies || [];
+    for (const pp of this.planetParams) {
+      const planet = new Planet(this, pp, universe, zoomFactors);
+      this.bodies.push(planet);
+      universe.bodies.push(planet); // if you want planets globally
+    }
   }
 }
 
 function generateStar() {
-    const star = new Star(0, 0, sampleInitialMassMilkyWay({ mMax: 50 }), sampleMetallicityZ(), sampleAgeYears());
-    // Additional star property calculations can be added here
-    return star;
+  const star = new Star(0, 0, sampleInitialMassMilkyWay({ mMax: 50 }), sampleMetallicityZ(), sampleAgeYears());
+  // Additional star property calculations can be added here
+  return star;
 }
 
 // determineStarCoords(star, universe) -> {x, y} in WORLD UNITS
@@ -258,7 +269,7 @@ function generateStar() {
 // - your star instance has setxy({x,y}) and will store x/y in world units
 
 function determineStarCoords(star) {
-    // console.log(universe);
+  // console.log(universe);
   const GU_TO_UNITS = Number(universe.guUnit ?? 22688); // your 60s travel distance
 
   // --- helpers ---
@@ -306,14 +317,14 @@ function determineStarCoords(star) {
     // Guarantee enough room for the outer spacing idea (10 GU-ish outer region)
     console.log('universe radius (GU)', R);
     R = Math.max(12, R);
-    if (typeof universe.setradius === "function") universe.setradius(R);
+    if (typeof universe.setRadius === "function") universe.setRadius(R);
     else universe.radius = R;
   }
 
   const radiusGU = Number(universe.radius);
 
   // --- Steps 2–5: sample coords until they satisfy min-distance rule ---
-  const MAX_ATTEMPTS = Number(universe.maxPlacementAttempts ?? 5000);
+  const MAX_ATTEMPTS = Number(universe.maxPlacementAttempts);
   const tolerance = 0.25; // ±25% => min is 75%
   const baseMinFactor = 1 - tolerance; // 0.75
 
@@ -347,7 +358,7 @@ function determineStarCoords(star) {
       if (!b) continue;
 
       // optional: only check stars if your universe includes other body types
-      if (b.body && b.body !== "Star" && b.type && b.type !== "Star") {
+      if (b.type && b.type !== "Star") {
         // if you don't label bodies, comment this block out
       }
 

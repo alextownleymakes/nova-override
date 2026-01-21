@@ -25,3 +25,10 @@ const math = {
     rt: randomTimer,
     car: calculateAccelRatio,
 };
+
+const TAU = Math.PI * 2;
+const rand = (a, b) => a + Math.random() * (b - a);
+const lerp = (a, b, t) => a + (b - a) * t;
+const log10 = (x) => Math.log(x) / Math.LN10;
+const pow10 = (x) => Math.pow(10, x);
+function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
