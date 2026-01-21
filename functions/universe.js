@@ -147,7 +147,7 @@ function drawUniverse(universe, c) {
 
         
         if (body.type !== 'Star' && !ship.bodyLock) { return; }   
-        if (!isStarWithinGU(body, ship, .1)) { return; }
+        if (!isStarWithinGU(body, ship, .05)) { return; }
         console.log(body.name + ' - ' + body.type, body)
 
         if (body.type === 'Star' && ship.bodyLock && ship.bodyLock.id !== body.id) {
