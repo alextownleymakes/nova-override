@@ -87,6 +87,8 @@ function update() {
 
     // HUD is DOM-based, leave in screen-space
     hud.draw(ship);
+    minimap.draw(universe, ship, canvas);
+
     gameOver(playerHealth, gameOverCondition, theScore, maxEnemies);
 }
 

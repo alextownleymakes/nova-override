@@ -17,7 +17,7 @@ const PX_SCALE = 10000;
 const SUN_RADIUS_MILES = 432690; // Sun radius in miles
 const SUN_RADIUS_AU = SUN_RADIUS_MILES / AU_MILES; // Sun radius in AU
 const AU_TO_GALACTIC = (au) => au * 0.085; // 1 AU = 0.085 galactic units
-const zoomFactors = [1, 100, 1000]; // zoom levels
+const zoomFactors = [1, 1000, 10000]; // zoom levels
 const GRAV_LOCK = 20;
 const solarRadiiToIGU = (r) => r * SUN_RADIUS_AU * 0.0847; // convert solar radii to in-game units
 const auToIGU = (au) => au * 0.0847; // convert AU to in-game units
@@ -176,7 +176,7 @@ function drawBodies(bodies, c) {
         }
 
         setTimeout(() => {// stopping point - 900? why is it jumping around?
-            if (ship.bodyLock && ship.bodyLock.id === body.id && !isShipInsideOortCloud(body, ship, 2000)) {
+            if (ship.bodyLock && ship.bodyLock.id === body.id && !isShipInsideOortCloud(body, ship, zoomFactors[universe.zoomLevel] * 20)) {
                 ship.bodyLock = null;
                 universe.zoomLevel = 0;
             }

@@ -122,13 +122,21 @@
                 <br><br>
                 <div class="row">
                     <div class="col-lg-5"></div>
-                    <div class="col-lg-1" onClick="" id="resetButton"><h4>UPGRADE</h4></div>
-                    <div class="col-lg-1" onClick="nextWave();" id="resetButton"><h4>CONTINUE</h4></div>
+                    <div class="col-lg-1" onClick="" id="resetButton">
+                        <h4>UPGRADE</h4>
+                    </div>
+                    <div class="col-lg-1" onClick="nextWave();" id="resetButton">
+                        <h4>CONTINUE</h4>
+                    </div>
                 </div>
-                
+
             </div>
         </div>
     </div>
+    <div id="minimap-wrap">
+        <canvas id="minimap" width="200" height="200"></canvas>
+    </div>
+
     <script>
         /** @type {HTMLCanvasElement} */
         var canv = document.getElementById("gameCanvas");
@@ -152,6 +160,7 @@
     <script src="functions/universe.js"></script>
     <script src="functions/gen/planetgen.js"></script>
     <script src="functions/gen/stargen.js"></script>
+    <script src="functions/minimap.js"></script>
     <script src="script.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"

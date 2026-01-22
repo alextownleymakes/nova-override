@@ -107,3 +107,21 @@ h1 {
 .visibility-toggle {
     visibility: hidden;
 }
+
+#minimap-wrap{
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 200px;
+  height: 200px;
+  border: 1px solid rgba(255,255,255,.35);
+  background: rgba(0, 60, 99, 0.506);
+  backdrop-filter: blur(1px);
+  z-index: 9999;
+}
+
+#minimap{
+  width: 200px;
+  height: 200px;
+  display: block;
+}

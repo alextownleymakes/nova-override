@@ -96,9 +96,8 @@ function shipAcceleration(c, ship, shipSize, acceleration) {
         // if ( )
         // console.log(ship.thrust.y);
     }
-    ship.x += ship.thrust.x / zoomFactors[universe.zoomLevel];
-    ship.y += ship.thrust.y / zoomFactors[universe.zoomLevel];
-
+    ship.x += (ship.thrust.x / zoomFactors[universe.zoomLevel]) * [1, 2, 3, 4][universe.zoomLevel];
+    ship.y += (ship.thrust.y / zoomFactors[universe.zoomLevel]) * [1, 2, 3, 4][universe.zoomLevel];
 }
 
 function shipDeceleration(ship, d) {
