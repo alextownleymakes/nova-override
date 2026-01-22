@@ -17,10 +17,27 @@ const PX_SCALE = 10000;
 const SUN_RADIUS_MILES = 432690; // Sun radius in miles
 const SUN_RADIUS_AU = SUN_RADIUS_MILES / AU_MILES; // Sun radius in AU
 const AU_TO_GALACTIC = (au) => au * 0.085; // 1 AU = 0.085 galactic units
-const zoomFactors = [1, 1000, 10000]; // zoom levels
+const zoomFactors = [1, 1000, 10000, 10000, 20000]; // zoom levels
 const GRAV_LOCK = 20;
 const solarRadiiToIGU = (r) => r * SUN_RADIUS_AU * 0.0847; // convert solar radii to in-game units
 const auToIGU = (au) => au * 0.0847; // convert AU to in-game units
+const iguToAU = (igu) => igu / 0.0847; // convert in-game units to AU
+
+const solToPCinLY = 4.24; // distance from sun to proxima centauri in light years
+const solToPCinAU = 268332; // distance from sun to proxima centauri in AU
+const solToPCinMI = 268332 * 92955807; // distance from sun to proxima centauri in miles
+const oneLightYearInAU = solToPCinAU / solToPCinLY; // 1 light year in AU
+
+//a function that takes any units in IGU and converts it to the largest whole UOM, either ly or au or miles
+function iguToLargestUOM(igu) {
+    const ly = igu / (solToPCinLY / GU);
+    const au = iguToAU(igu);
+    const miles = au * AU_MILES;
+
+    if (ly >= 1) return Math.floor(ly) + " ly";
+    if (au >= 1) return Math.floor(au) + " au";
+    return Math.floor(miles) + " miles";
+}
 
 function starRadiusPx(star) {
     return AU_TO_GALACTIC(star.radius / AU_MILES);
@@ -65,6 +82,19 @@ class Universe {
     setRadius(r) {
         this.radius = r;
     }
+
+    zoomIn() {
+        this.zoomLevel = this.zoomLevel + 1;
+    }
+
+    zoomOut() {
+        this.zoomLevel = this.zoomLevel - 1;
+    }
+
+    zoom(level) {
+        this.zoomLevel = this.zoomLevel + level;
+    }
+
 
     update(starCount = this.starCount) {
 
@@ -113,10 +143,18 @@ function generateName(type) {
     const suffixes = ['', 'on', 'ar', 'is', 'us', 'ea', 'ix', 'or', 'um', 'ax', 'en'];
     const tags = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ' Prime', ' Nova', ' I', ' II', ' III', ' IV', ' V', ' VI', ' VII', ' VIII', ' IX', ' X'];
 
+    const planetPrefixes = ['Aqua', 'Terra', 'Ignis', 'Ventus', 'Lumen', 'Umbra', 'Stella', 'Nox', 'Vita', 'Mortis'];
+    const planetMiddles = ['ria', 'lia', 'nia', 'tus', 'cus', 'mus', 'dus', 'rus', 'sus', 'lus'];
+    const planetSuffixes = ['ia', 'ara', 'ora', 'una', 'es', 'is', 'os', 'um', 'ax', 'ex'];
+
+    const names = {
+        'star': { prefixes, middles, suffixes },
+        'planet': { prefixes: planetPrefixes, middles: planetMiddles, suffixes: planetSuffixes },
+    }
     const starter = starters[Math.floor(Math.random() * starters.length)];
-    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-    const middle = middles[Math.floor(Math.random() * middles.length)];
-    const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+    const prefix = names[type].prefixes[Math.floor(Math.random() * names[type].prefixes.length)];
+    const middle = names[type].middles[Math.floor(Math.random() * names[type].middles.length)];
+    const suffix = names[type].suffixes[Math.floor(Math.random() * names[type].suffixes.length)];
     const tag = tags[Math.floor(Math.random() * tags.length)];
     return starter + prefix + middle + suffix + tag;
 }
@@ -154,6 +192,36 @@ function isShipInsideOortCloud(star, ship, oortRadiusPx) {
     return (dx * dx + dy * dy) <= (oortRadiusPx * oortRadiusPx);
 }
 
+function isShipInside1AU(star, ship) {
+    const sx = star.coords[universe.zoomLevel].x;
+    const sy = star.coords[universe.zoomLevel].y;
+    const px = ship.x * zoomFactors[universe.zoomLevel];
+    const py = ship.y * zoomFactors[universe.zoomLevel];
+
+    const dx = px - sx;
+    const dy = py - sy;
+
+    const distToStar = Math.sqrt(dx * dx + dy * dy);
+    const oneAUPx = auToIGU(1) * zoomFactors[universe.zoomLevel];
+
+    return (dx * dx + dy * dy) <= (oneAUPx * oneAUPx);
+}
+
+function isShipInsidePlanetLock(planet, ship) {
+    const sx = planet.coords[universe.zoomLevel].x;
+    const sy = planet.coords[universe.zoomLevel].y;
+    const px = ship.x * zoomFactors[universe.zoomLevel];
+    const py = ship.y * zoomFactors[universe.zoomLevel];
+
+    const dx = px - sx;
+    const dy = py - sy;
+
+    const distToPlanet = Math.sqrt(dx * dx + dy * dy);
+    const planetLockPx = auToIGU(planet.gravityLock) * zoomFactors[universe.zoomLevel];
+
+    return distToPlanet <= (planetLockPx * planetLockPx);
+}
+
 
 function drawBodies(bodies, c) {
     bodies.forEach(body => {
@@ -169,19 +237,41 @@ function drawBodies(bodies, c) {
             body.type !== 'Star' && ship.bodyLock && ship.bodyLock.id !== body.starId
         ) { return; }
 
-        console.log('drawing body: ', body.name, body.type);
-
         if (isShipInsideOortCloud(body, ship, GRAV_LOCK) && !ship.bodyLock) {
             ship.bodyLock = body;
-            universe.zoomLevel = 1;
+            ship.target = body;
+            universe.zoom(1);
         }
 
-        setTimeout(() => {// stopping point - 900? why is it jumping around?
+        // if (isShipInside1AU(body, ship) && ship.bodyLock && ship.bodyLock.id === body.id && universe.zoomLevel === 1) {
+        //     universe.zoom(1);
+        // }
+
+        setTimeout(() => {
             if (ship.bodyLock && ship.bodyLock.id === body.id && !isShipInsideOortCloud(body, ship, zoomFactors[universe.zoomLevel] * 20)) {
                 ship.bodyLock = null;
                 universe.zoomLevel = 0;
             }
         }, 5000);
+
+        //settimeout for exiting 1au
+        setTimeout(() => {
+            if (ship.bodyLock && ship.bodyLock.id === body.id && !isShipInside1AU(body, ship)) {
+                universe.zoomLevel = 1;
+            }
+        }, 5000);
+
+        if (body.body === "Planet") {
+            if (isShipInsidePlanetLock(body, ship)) {
+                universe.zoomLevel = 3;
+            }
+
+            setTimeout(() => {
+                if (ship.bodyLock && ship.bodyLock.id === body.id && !isShipInsidePlanetLock(body, ship)) {
+                    universe.zoomLevel = 2;
+                }
+            }, 5000);
+        }
 
         c.beginPath();
         const rPx = starRadiusPx(body);
@@ -208,6 +298,7 @@ function drawBodies(bodies, c) {
         // console.log('drawing gravity lock for ', body.name, ' at ', body.gravityLock, ' px');
         const planetLockIGU = auToIGU(body.gravityLock);
         
+        // draws a circle for the inner gravity lock
         if (lockPx > rPx) {
             c.beginPath();
             // console.log(lockPx)
@@ -227,6 +318,15 @@ function drawBodies(bodies, c) {
             c.strokeStyle = "rgba(0, 255, 0, 0.7)";
             c.lineWidth = 2;
             c.stroke();
+
+            // draw orbit path 1au from star
+            c.beginPath();
+            const orbitRadiusPx = auToIGU(1) * zoomFactors[universe.zoomLevel];
+            c.arc(body.star.coords[universe.zoomLevel].x, body.star.coords[universe.zoomLevel].y, orbitRadiusPx, 0, Math.PI * 2);
+            c.strokeStyle = "rgba(255, 255, 0, 0.3)";
+            c.lineWidth = 1;
+            c.stroke();
+
         }
 
         body.bodies && drawBodies(body.bodies, c);

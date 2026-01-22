@@ -54,7 +54,25 @@ function keyboardMovement(controller, ship, showBounding, gameOverCondition) {
             // key Tab
             case 9:
                 controller.setTarget(true);
+                !ship.target && (ship.target = ship.bodyLock);
+                if (ship.target) {
+                    const possibleTargets = [ship.bodyLock, ...ship.bodyLock.bodies];
+                    //find the position of ship.target in possibleTargets
+                    const currentIndex = possibleTargets.findIndex(b => b.id === ship.target.id);
+                    //set ship.target to the next target in possibleTargets, or the first one if at the end of the array
+                    const nextIndex = (currentIndex + (e.shiftKey ? 1 : -1) + possibleTargets.length) % possibleTargets.length;
+                    ship.target = possibleTargets[nextIndex];
+                }
+
+                controller.setTarget(false);
                 break;
+
+            // key f
+            case 70:
+                controller.setFaceTarget(true);
+                break;
+
+            // key B
 
             case 66:
 
@@ -118,6 +136,12 @@ function keyboardMovement(controller, ship, showBounding, gameOverCondition) {
 
                 break;
 
+            // key f
+            case 70:
+                controller.setFaceTarget(false);
+                break;
+
+            // key X
             case 88:
                 ship.decel = false;
                 controller.setDecel(false);
@@ -149,6 +173,7 @@ class Controller {
         this.showBounding = false;
         this.flip = false;
         this.target = false;
+        this.faceTarget = false;
         this.setAccel = this.setAccel.bind(this);
         this.setDecel = this.setDecel.bind(this);
         this.setFireGun = this.setFireGun.bind(this);
@@ -157,6 +182,7 @@ class Controller {
         this.toggleShowBounding = this.toggleShowBounding.bind(this);
         this.setFlip = this.setFlip.bind(this);
         this.setTarget = this.setTarget.bind(this);
+        this.setFaceTarget = this.setFaceTarget.bind(this);
     }
 
     setAccel = (accel) => {
@@ -189,5 +215,9 @@ class Controller {
 
     setTarget = (target) => {
         this.target = target;
+    }
+
+    setFaceTarget = (faceTarget) => {
+        this.faceTarget = faceTarget;
     }
 }

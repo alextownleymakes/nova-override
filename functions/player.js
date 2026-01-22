@@ -173,9 +173,10 @@ function shipScreenWrap() {
 }
 
 function shipTurnToTarget(ship) {
-    const body = ship.bodyLock;
-    if (!controller.target || !body) { return; }
-    const desiredAngle = Math.atan2(body.y - ship.y, body.x - ship.x) * 180 / Math.PI;
+    const body = ship.target;
+    if (!controller.faceTarget || !body) { return; }
+
+    const desiredAngle = Math.atan2(ship.y - body.coords[0].y, body.coords[0].x - ship.x) * 180 / Math.PI;
     let angleDifference = desiredAngle - ship.angle;
 
     if (angleDifference > 180) {

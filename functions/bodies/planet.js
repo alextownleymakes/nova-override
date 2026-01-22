@@ -7,6 +7,7 @@ class Planet extends Body {
     super(0, 0, params.massEarth);
 
     this.body = "Planet";
+    this.name = ""
     this.id = params.id;
     this.starId = params.starId;
     this.star = star;

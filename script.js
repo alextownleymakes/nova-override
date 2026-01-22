@@ -59,6 +59,7 @@ var ship = {
     bullets: [],
     explosions: [],
     bodyLock: null,
+    target: null,
 }
 var enemy = {
     ships: [],

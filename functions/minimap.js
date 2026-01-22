@@ -25,7 +25,7 @@ function worldToMiniZ1(x, y, centerX, centerY, halfSpan) {
     const py = MINIMAP_HALF + (dy / 100) * MINIMAP_HALF;
 
     const result = { x: px, y: py }
-    console.log('worldToMiniZ1:', x, y, '->', result.x, result.y);
+    // console.log('worldToMiniZ1:', x, y, '->', result.x, result.y);
     return result;
 }
 
