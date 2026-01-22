@@ -88,6 +88,8 @@ class Planet extends Body {
     this.setxy({ x, y });
   }
 
+  
+
   setxy({ x, y }) {
     this.x = x;
     this.y = y;

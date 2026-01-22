@@ -14,7 +14,6 @@ function worldToMiniZ0(x, y, centerX, centerY, halfSpan) {
     const py = MINIMAP_HALF + (dy / halfSpan) * MINIMAP_HALF;
 
     const result = { x: px, y: py }
-    console.log('worldToMiniZ0:', x, y, '->', result.x, result.y);
     return result;
 }
 
@@ -84,7 +83,6 @@ const minimap = {
 
                 const p = worldToMiniZ0(bx, by, cx, cy, halfSpan);
                 // if (p.x < 0 || p.x > MINIMAP_SIZE || p.y < 0 || p.y > MINIMAP_SIZE) continue;
-                console.log('minimap star:', b.name, bx, by);
 
                 ctx.fillStyle = "rgba(255,255,255,0.8)";
                 drawDot(ctx, p.x, p.y, 1.2);

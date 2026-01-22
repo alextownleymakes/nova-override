@@ -255,6 +255,7 @@ class Star extends Body {
       // console.log('GL: ', pp.gravityLock)
       const planet = new Planet(this, pp, universe, zoomFactors);
       const orbit = generatePlanetOrbitOffset(pp);
+      console.log('planet orbit offset:', orbit);
       planet.orbit = orbit;
       const baseX = this.coords[0].x + orbit.x;
       const baseY = this.coords[0].y + orbit.y;

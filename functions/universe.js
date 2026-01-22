@@ -154,6 +154,7 @@ function isShipInsideOortCloud(star, ship, oortRadiusPx) {
     return (dx * dx + dy * dy) <= (oortRadiusPx * oortRadiusPx);
 }
 
+
 function drawBodies(bodies, c) {
     bodies.forEach(body => {
 
@@ -191,6 +192,7 @@ function drawBodies(bodies, c) {
         c.fillStyle = 'yellow';
         if (body.body === 'Star') {
         } else if (body.body === 'Planet') {
+            
             c.fillStyle = 'blue';
         } else if (body.body === 'Moon') {
             c.fillStyle = 'gray';
@@ -218,6 +220,7 @@ function drawBodies(bodies, c) {
 
         if (body.body === 'Planet') {
             // console.log('drawing planet lock for ', body.name, ' at ', planetLockIGU, ' IGU');
+            body.updateWorldPosition(1/fps);
             c.beginPath();
             const z = zoomFactors[universe.zoomLevel];
             c.arc(body.coords[universe.zoomLevel].x, body.coords[universe.zoomLevel].y, Math.max(planetLockIGU * z, 20), 0, Math.PI * 2);
