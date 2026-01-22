@@ -137,7 +137,7 @@ function initialCompositionFromZ(Z) {
 function maxPlanetOrbitAU(star) {
   const M = Math.max(0.1, Number(star.mass) || 1);
   const result = 50 * Math.cbrt(M);
-  console.log('max planet orbit AU', result);
+  // console.log('max planet orbit AU', result);
   return result;
 }
 
@@ -252,7 +252,7 @@ class Star extends Body {
 
     this.bodies = this.bodies || [];
     for (const pp of this.planetParams) {
-      console.log('aAU: ', pp.aAU)
+      // console.log('GL: ', pp.gravityLock)
       const planet = new Planet(this, pp, universe, zoomFactors);
       const orbit = generatePlanetOrbitOffset(pp);
       planet.orbit = orbit;

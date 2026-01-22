@@ -41,6 +41,8 @@ class Planet extends Body {
     this._universe = universe;
     this._zoomFactors = zoomFactors;
 
+    this.gravityLock = params.gravityLock;
+
     // initialize position (circular for now)
     this.updateWorldPosition(0);
   }

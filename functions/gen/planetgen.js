@@ -380,6 +380,52 @@ function enforceInnerAbsoluteSpacing(sorted, aMax, innerEdgeAU = 1.0, minDeltaAU
   return out;
 }
 
+// planetGravityLockAU(planet, star, opts?) -> lock radius in AU
+//
+// Meaning: within this AU radius around the planet, you're "gravity locked" to it.
+//
+// Uses Hill radius:
+//   rH = a * (m / (3M))^(1/3)
+//
+// Then lock = f * rH, where f is a tunable fraction.
+// Typical "stable satellite region" is ~0.3–0.5 rH; for gameplay you can tune.
+//
+// Expects:
+// - planet.aAU (semi-major axis in AU)
+// - planet.massEarth (planet mass in Earth masses) OR planet.mass (if that's what you store)
+// - star.mass (solar masses)
+
+function planetGravityLockAU(planet, star, opts = {}) {
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+
+  const aAU = Math.max(0.01, Number(planet.aAU ?? planet.a ?? 0.01));
+
+  // planet mass in Earth masses
+  const mEarth = Number(planet.massEarth ?? planet.mass ?? 1);
+
+  // star mass in solar masses
+  const Mstar = Math.max(0.08, Number(star.mass ?? star.currentMass ?? star.initialMass ?? 1));
+
+  // Convert planet mass Earth->Solar
+  const EARTH_TO_SOLAR = 1 / 332946; // 1 M⊕ in M☉
+  const mSolar = Math.max(1e-12, mEarth * EARTH_TO_SOLAR);
+
+  // Hill radius in AU
+  const rHill = aAU * Math.cbrt(mSolar / (3 * Mstar));
+
+  // fraction of Hill sphere to treat as "lock"
+  const f = Number(opts.fraction ?? 0.35); // good default
+  let lock = rHill * f;
+
+  // Optional floors/ceilings for gameplay sanity
+  const minAU = Number(opts.minAU ?? 0.0005); // ~75,000 km
+  const maxAU = Number(opts.maxAU ?? (rHill * 0.8)); // never exceed big fraction of Hill
+
+  lock = clamp(lock, minAU, maxAU);
+
+  return lock;
+}
+
 
 // --- main export ---
 function generatePlanetParamsForStar(star, opts = {}) {
@@ -407,7 +453,7 @@ function generatePlanetParamsForStar(star, opts = {}) {
 
 
 
-    console.log("aList AFTER cap:", aList.filter(a => a < 1), aList);
+    // console.log("aList AFTER cap:", aList.filter(a => a < 1), aList);
 
 
     // allocate masses from solids budget with a decreasing distribution
@@ -488,7 +534,11 @@ function generatePlanetParamsForStar(star, opts = {}) {
                 C_O: chem.elementRatios.C_O,
                 Mg_Si: chem.elementRatios.Mg_Si,
                 Fe_Mg: chem.elementRatios.Fe_Mg
-            }
+            },
+            gravityLock: planetGravityLockAU({
+                aAU: aFinal,
+                massEarth: mEarth
+            }, star)
         });
 
         if (remaining < solidsEM * 0.08) break;

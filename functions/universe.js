@@ -20,6 +20,7 @@ const AU_TO_GALACTIC = (au) => au * 0.085; // 1 AU = 0.085 galactic units
 const zoomFactors = [1, 100, 1000]; // zoom levels
 const GRAV_LOCK = 20;
 const solarRadiiToIGU = (r) => r * SUN_RADIUS_AU * 0.0847; // convert solar radii to in-game units
+const auToIGU = (au) => au * 0.0847; // convert AU to in-game units
 
 function starRadiusPx(star) {
     return AU_TO_GALACTIC(star.radius / AU_MILES);
@@ -167,6 +168,8 @@ function drawBodies(bodies, c) {
             body.type !== 'Star' && ship.bodyLock && ship.bodyLock.id !== body.starId
         ) { return; }
 
+        console.log('drawing body: ', body.name, body.type);
+
         if (isShipInsideOortCloud(body, ship, GRAV_LOCK) && !ship.bodyLock) {
             ship.bodyLock = body;
             universe.zoomLevel = 1;
@@ -200,12 +203,25 @@ function drawBodies(bodies, c) {
         // gravity lock ring (blue)
         const lockPx = gravityLockPx_AU(body);
 
+        // console.log('drawing gravity lock for ', body.name, ' at ', body.gravityLock, ' px');
+        const planetLockIGU = auToIGU(body.gravityLock);
+        
         if (lockPx > rPx) {
             c.beginPath();
             // console.log(lockPx)
             const z = zoomFactors[universe.zoomLevel];
             c.arc(body.coords[universe.zoomLevel].x, body.coords[universe.zoomLevel].y, GRAV_LOCK * z, 0, Math.PI * 2);
             c.strokeStyle = "rgba(0, 140, 255, 0.7)";
+            c.lineWidth = 2;
+            c.stroke();
+        }
+
+        if (body.body === 'Planet') {
+            // console.log('drawing planet lock for ', body.name, ' at ', planetLockIGU, ' IGU');
+            c.beginPath();
+            const z = zoomFactors[universe.zoomLevel];
+            c.arc(body.coords[universe.zoomLevel].x, body.coords[universe.zoomLevel].y, Math.max(planetLockIGU * z, 20), 0, Math.PI * 2);
+            c.strokeStyle = "rgba(0, 255, 0, 0.7)";
             c.lineWidth = 2;
             c.stroke();
         }
